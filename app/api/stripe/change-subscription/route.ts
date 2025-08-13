@@ -3,7 +3,7 @@ import { stripe } from '@/lib/stripe'
 import { getCurrentUser } from '@/lib/auth'
 import { createClient } from '@supabase/supabase-js'
 
-export async function POST() {
+export async function POST(request: Request) {
   try {
     const user = await getCurrentUser()
     if (!user) {
@@ -13,13 +13,22 @@ export async function POST() {
       )
     }
 
+    const { newPriceId } = await request.json()
+    
+    if (!newPriceId) {
+      return NextResponse.json(
+        { error: 'Price ID is required' },
+        { status: 400 }
+      )
+    }
+
     // Use service role client for database operations
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     )
 
-    // Get user's subscription info
+    // Get user's current subscription info
     const { data: userProfile, error: userError } = await supabase
       .from('users')
       .select('stripe_subscription_id, stripe_customer_id')
@@ -40,38 +49,42 @@ export async function POST() {
       )
     }
 
-    // Cancel the subscription in Stripe
-    const canceledSubscription = await stripe.subscriptions.cancel(
+    // Get current subscription from Stripe
+    const subscription = await stripe.subscriptions.retrieve(
       userProfile.stripe_subscription_id
     )
 
-    console.log('Subscription canceled:', canceledSubscription.id)
-
-    // Update user in database (webhook will also handle this, but we do it here for immediate UI update)
-    const { error: updateError } = await supabase
-      .from('users')
-      .update({
-        plan: 'free',
-        stripe_subscription_id: null,
-        current_price_id: null,
-        plan_started_at: null,
-        plan_expires_at: null,
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', user.id)
-
-    if (updateError) {
-      console.error('Error updating user after cancellation:', updateError)
-      // Don't return error here as the Stripe cancellation succeeded
+    if (!subscription.items.data[0]) {
+      return NextResponse.json(
+        { error: 'Invalid subscription' },
+        { status: 400 }
+      )
     }
+
+    // Update the subscription with new price
+    const updatedSubscription = await stripe.subscriptions.update(
+      userProfile.stripe_subscription_id,
+      {
+        items: [
+          {
+            id: subscription.items.data[0].id,
+            price: newPriceId,
+          },
+        ],
+        proration_behavior: 'create_prorations', // Create prorations for the change
+      }
+    )
+
+    console.log('Subscription updated:', updatedSubscription.id)
 
     return NextResponse.json({ 
       success: true,
-      message: 'Assinatura cancelada com sucesso'
+      message: 'Plano alterado com sucesso',
+      subscriptionId: updatedSubscription.id
     })
 
   } catch (error: unknown) {
-    console.error('Subscription cancellation error:', error)
+    console.error('Subscription change error:', error)
     return NextResponse.json(
       { error: (error as Error).message || 'Internal server error' },
       { status: 500 }

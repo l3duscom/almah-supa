@@ -25,6 +25,7 @@ import { Button } from '@/components/ui/button'
 import { Crown, Users } from 'lucide-react'
 import { StripeEmbeddedCheckout } from '@/components/stripe-embedded-checkout'
 import { CancelSubscriptionModal } from '@/components/cancel-subscription-modal'
+import { ChangePlanModal } from '@/components/change-plan-modal'
 import Script from 'next/script'
 
 interface Subscription {
@@ -42,7 +43,10 @@ export default function PlanosPage() {
   const [selectedPlan, setSelectedPlan] = useState<PricingPlan | null>(null)
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false)
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false)
+  const [isChangePlanModalOpen, setIsChangePlanModalOpen] = useState(false)
   const [selectedBillingPeriod, setSelectedBillingPeriod] = useState<'monthly' | 'semiannual' | 'annual'>('annual')
+  const [currentUserPlan, setCurrentUserPlan] = useState<PricingPlan | null>(null)
+  const [planToChangeTo, setPlanToChangeTo] = useState<PricingPlan | null>(null)
 
   useEffect(() => {
     const loadData = async () => {
@@ -60,7 +64,7 @@ export default function PlanosPage() {
         // Get user subscription
         const { data: userProfile } = await supabase
           .from('users')
-          .select('plan, plan_expires_at, stripe_customer_id, stripe_subscription_id')
+          .select('plan, plan_expires_at, stripe_customer_id, stripe_subscription_id, current_price_id')
           .eq('id', user.id)
           .single()
         
@@ -74,6 +78,12 @@ export default function PlanosPage() {
           .order('sort_order', { ascending: true })
         
         setPricingPlans(plans || [])
+
+        // Find current user's plan details
+        if (userProfile?.current_price_id && plans) {
+          const currentPlan = plans.find(p => p.stripe_price_id === userProfile.current_price_id)
+          setCurrentUserPlan(currentPlan || null)
+        }
 
       } catch (error) {
         console.error('Error loading data:', error)
@@ -121,6 +131,36 @@ export default function PlanosPage() {
     } catch (error) {
       console.error('Error canceling subscription:', error)
       alert('Erro ao cancelar assinatura. Tente novamente.')
+    }
+  }
+
+  const handleChangePlan = (newPlan: PricingPlan) => {
+    setPlanToChangeTo(newPlan)
+    setIsChangePlanModalOpen(true)
+  }
+
+  const handleConfirmPlanChange = async (newPriceId: string) => {
+    try {
+      const response = await fetch('/api/stripe/change-subscription', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          newPriceId: newPriceId,
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Erro ao alterar plano')
+      }
+
+      // Refresh the page data to show updated subscription
+      window.location.reload()
+
+    } catch (error) {
+      console.error('Error changing plan:', error)
+      alert('Erro ao alterar plano. Tente novamente.')
     }
   }
 
@@ -318,9 +358,31 @@ export default function PlanosPage() {
               </ul>
 
               {currentPlan === 'premium' && isActive ? (
-                <Button className="w-full h-12 bg-yellow-500 hover:bg-yellow-600 text-gray-900" disabled>
-                  Seu plano atual
-                </Button>
+                <div className="space-y-3">
+                  {/* Current plan indicator */}
+                  {currentUserPlan && selectedPeriodPlan && currentUserPlan.stripe_price_id === selectedPeriodPlan.stripe_price_id ? (
+                    <Button className="w-full h-12 bg-yellow-500 hover:bg-yellow-600 text-gray-900" disabled>
+                      Seu plano atual
+                    </Button>
+                  ) : selectedPeriodPlan ? (
+                    <Button 
+                      className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white"
+                      onClick={() => handleChangePlan(selectedPeriodPlan)}
+                    >
+                      <Crown className="w-4 h-4 mr-2" />
+                      Alterar para {selectedBillingPeriod === 'monthly' ? 'Mensal' : selectedBillingPeriod === 'semiannual' ? 'Semestral' : 'Anual'}
+                    </Button>
+                  ) : null}
+                  
+                  {/* Current plan info */}
+                  {currentUserPlan && (
+                    <p className="text-xs text-gray-400 text-center">
+                      Plano atual: Premium {currentUserPlan.billing_period === 'monthly' ? 'Mensal' : 
+                        currentUserPlan.billing_period === 'semiannual' ? 'Semestral' : 'Anual'} 
+                      (R$ {(currentUserPlan.price_cents / 100).toFixed(2)})
+                    </p>
+                  )}
+                </div>
               ) : (
                 <Button 
                   className="w-full h-12 bg-yellow-500 hover:bg-yellow-600 text-gray-900"
@@ -398,6 +460,15 @@ export default function PlanosPage() {
         isOpen={isCancelModalOpen}
         onClose={() => setIsCancelModalOpen(false)}
         onConfirm={handleCancelSubscription}
+      />
+
+      {/* Change Plan Modal */}
+      <ChangePlanModal 
+        isOpen={isChangePlanModalOpen}
+        onClose={() => setIsChangePlanModalOpen(false)}
+        onConfirm={handleConfirmPlanChange}
+        currentPlan={currentUserPlan}
+        newPlan={planToChangeTo}
       />
     </>
   )

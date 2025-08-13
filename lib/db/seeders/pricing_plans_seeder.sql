@@ -18,48 +18,36 @@ INSERT INTO public.pricing_plans (
   'Premium Mensal',
   'Acesso completo aos recursos premium',
   'price_premium_monthly_placeholder', -- Substitua pelo Price ID real do Stripe
-  'prod_premium_placeholder', -- Substitua pelo Product ID real do Stripe
+  'prod_premium', -- Product ID unificado para todos os planos Premium
   'monthly',
-  2990, -- R$ 29,90
+  1990, -- R$ 19,90
   'brl',
   1,
   '["Grupos ilimitados", "Participantes ilimitados", "Histórico completo", "Suporte prioritário", "Temas personalizados"]'
-),
--- Quarterly Premium (3 months)
-(
-  'Premium Trimestral',
-  'Acesso completo aos recursos premium - 3 meses',
-  'price_premium_quarterly_placeholder', -- Substitua pelo Price ID real do Stripe
-  'prod_premium_placeholder', -- Substitua pelo Product ID real do Stripe
-  'quarterly',
-  7990, -- R$ 79,90 (10% desconto)
-  'brl',
-  2,
-  '["Grupos ilimitados", "Participantes ilimitados", "Histórico completo", "Suporte prioritário", "Temas personalizados", "10% de desconto"]'
 ),
 -- Semiannual Premium (6 months)
 (
   'Premium Semestral',
   'Acesso completo aos recursos premium - 6 meses',
   'price_premium_semiannual_placeholder', -- Substitua pelo Price ID real do Stripe
-  'prod_premium_placeholder', -- Substitua pelo Product ID real do Stripe
+  'prod_premium', -- Product ID unificado para todos os planos Premium
   'semiannual',
-  14990, -- R$ 149,90 (17% desconto)
+  9540, -- R$ 95,40 (20% desconto)
   'brl',
-  3,
-  '["Grupos ilimitados", "Participantes ilimitados", "Histórico completo", "Suporte prioritário", "Temas personalizados", "17% de desconto"]'
+  2,
+  '["Grupos ilimitados", "Participantes ilimitados", "Histórico completo", "Suporte prioritário", "Temas personalizados", "20% de desconto"]'
 ),
 -- Annual Premium (12 months)
 (
   'Premium Anual',
   'Acesso completo aos recursos premium - 12 meses',
   'price_premium_annual_placeholder', -- Substitua pelo Price ID real do Stripe
-  'prod_premium_placeholder', -- Substitua pelo Product ID real do Stripe
+  'prod_premium', -- Product ID unificado para todos os planos Premium
   'annual',
-  27990, -- R$ 279,90 (22% desconto)
+  14328, -- R$ 143,28 (40% desconto)
   'brl',
-  4,
-  '["Grupos ilimitados", "Participantes ilimitados", "Histórico completo", "Suporte prioritário", "Temas personalizados", "22% de desconto", "2 meses grátis"]'
+  3,
+  '["Grupos ilimitados", "Participantes ilimitados", "Histórico completo", "Suporte prioritário", "Temas personalizados", "40% de desconto", "4+ meses grátis"]'
 )
 ON CONFLICT (stripe_price_id) DO UPDATE SET
   name = EXCLUDED.name,

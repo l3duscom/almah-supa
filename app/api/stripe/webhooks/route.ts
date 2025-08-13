@@ -83,12 +83,16 @@ export async function POST(req: NextRequest) {
           console.error('Invalid timestamp for current_period_end:', currentPeriodEndTimestamp)
         }
 
+        // Get the price ID from the subscription
+        const priceId = subscription.items.data[0]?.price?.id || null
+
         console.log('Updating user subscription:', {
           userId,
           isActive,
           subscriptionId: subscription.id,
           customerId,
-          currentPeriodEnd: currentPeriodEndISO
+          currentPeriodEnd: currentPeriodEndISO,
+          priceId
         })
 
         const { error: updateError } = await supabase
@@ -97,6 +101,7 @@ export async function POST(req: NextRequest) {
             plan: isActive ? 'premium' : 'free',
             stripe_subscription_id: subscription.id,
             stripe_customer_id: customerId,
+            current_price_id: isActive ? priceId : null,
             plan_started_at: isActive ? new Date().toISOString() : null,
             plan_expires_at: isActive ? currentPeriodEndISO : null,
             updated_at: new Date().toISOString(),
@@ -135,6 +140,7 @@ export async function POST(req: NextRequest) {
             .update({
               plan: 'free',
               stripe_subscription_id: null,
+              current_price_id: null,
               plan_started_at: null,
               plan_expires_at: null,
               updated_at: new Date().toISOString(),
