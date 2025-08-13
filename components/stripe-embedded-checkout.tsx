@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Crown } from 'lucide-react'
@@ -27,31 +27,62 @@ export function StripeEmbeddedCheckout({ plan, isOpen, onClose }: StripeEmbedded
   const [loading, setLoading] = useState(false)
   const [checkout, setCheckout] = useState<{ mount: (selector: string) => void; destroy: () => void } | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [isInitialized, setIsInitialized] = useState(false)
+  const checkoutElementRef = useRef<HTMLDivElement>(null)
+  const isMountedRef = useRef(false)
+
+  // Cleanup function
+  const cleanupCheckout = () => {
+    if (checkout) {
+      try {
+        checkout.destroy()
+      } catch (err) {
+        console.warn('Error destroying checkout:', err)
+      }
+      setCheckout(null)
+    }
+    
+    // Clear the DOM element using ref
+    if (checkoutElementRef.current) {
+      checkoutElementRef.current.innerHTML = ''
+    }
+    
+    isMountedRef.current = false
+    setIsInitialized(false)
+    setError(null)
+    setLoading(false)
+  }
 
   useEffect(() => {
     if (!isOpen || !plan) {
-      // Clean up checkout when modal closes
-      if (checkout) {
-        checkout.destroy()
-        setCheckout(null)
-      }
+      cleanupCheckout()
+      return
+    }
+
+    // Prevent multiple initializations
+    if (isInitialized) {
       return
     }
 
     const initializeCheckout = async () => {
+      // Mark as initializing to prevent concurrent calls
+      setIsInitialized(true)
+      setLoading(true)
+      setError(null)
       
       if (!window.Stripe) {
         setError('Stripe não foi carregado. Recarregue a página.')
+        setLoading(false)
+        setIsInitialized(false)
         return
       }
 
       if (!process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY) {
         setError('Chave pública do Stripe não configurada.')
+        setLoading(false)
+        setIsInitialized(false)
         return
       }
-
-      setLoading(true)
-      setError(null)
 
       try {
         // Create checkout session
@@ -67,6 +98,8 @@ export function StripeEmbeddedCheckout({ plan, isOpen, onClose }: StripeEmbedded
 
         if (!response.ok) {
           setError(`Erro na API: ${response.status}`)
+          setLoading(false)
+          setIsInitialized(false)
           return
         }
 
@@ -75,11 +108,15 @@ export function StripeEmbeddedCheckout({ plan, isOpen, onClose }: StripeEmbedded
 
         if (apiError) {
           setError(apiError)
+          setLoading(false)
+          setIsInitialized(false)
           return
         }
 
         if (!clientSecret) {
           setError('Client secret não recebido da API')
+          setLoading(false)
+          setIsInitialized(false)
           return
         }
 
@@ -101,11 +138,37 @@ export function StripeEmbeddedCheckout({ plan, isOpen, onClose }: StripeEmbedded
         })
 
         setCheckout(embeddedCheckout)
-        embeddedCheckout.mount('#embedded-checkout')
+
+        // Wait a bit for the DOM to be ready and check if element exists before mounting
+        setTimeout(() => {
+          if (checkoutElementRef.current && isOpen && !isMountedRef.current) {
+            // Clear any existing content
+            checkoutElementRef.current.innerHTML = ''
+            try {
+              embeddedCheckout.mount(checkoutElementRef.current)
+              isMountedRef.current = true
+            } catch (mountError) {
+              console.warn('Failed to mount checkout:', mountError)
+              setError('Erro ao carregar checkout. Tente novamente.')
+              setLoading(false)
+              setIsInitialized(false)
+            }
+          } else if (!isOpen) {
+            // Modal was closed before mounting, clean up
+            try {
+              embeddedCheckout.destroy()
+            } catch (destroyError) {
+              console.warn('Error destroying unmounted checkout:', destroyError)
+            }
+            setIsInitialized(false)
+          }
+        }, 100)
 
       } catch (err) {
         console.error('Checkout initialization error:', err)
         setError(`Erro: ${(err as Error).message || 'Erro desconhecido'}`)
+        setLoading(false)
+        setIsInitialized(false)
       } finally {
         setLoading(false)
       }
@@ -113,26 +176,29 @@ export function StripeEmbeddedCheckout({ plan, isOpen, onClose }: StripeEmbedded
 
     initializeCheckout()
 
-    return () => {
-      if (checkout) {
-        checkout.destroy()
-      }
-    }
-  }, [isOpen, plan, checkout])
+    // Cleanup on unmount
+    return cleanupCheckout
+  }, [isOpen, plan, isInitialized])
 
   const handleClose = () => {
-    if (checkout) {
-      checkout.destroy()
-      setCheckout(null)
-    }
+    cleanupCheckout()
     onClose()
   }
 
   if (!plan) return null
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col p-0">
+    <Dialog open={isOpen} onOpenChange={(open) => {
+      // Only allow closing via the X button, not by clicking outside
+      if (!open && !loading) {
+        handleClose()
+      }
+    }}>
+      <DialogContent 
+        className="max-w-4xl max-h-[90vh] flex flex-col p-0"
+        onPointerDownOutside={(e) => e.preventDefault()}
+        onEscapeKeyDown={(e) => !loading && handleClose()}
+      >
         <DialogHeader className="p-6 pb-4">
           <DialogTitle className="flex items-center gap-2">
             <Crown className="w-5 h-5 text-yellow-400" />
@@ -163,7 +229,7 @@ export function StripeEmbeddedCheckout({ plan, isOpen, onClose }: StripeEmbedded
           )}
 
           {/* Stripe embedded checkout will be mounted here */}
-          <div id="embedded-checkout" className="min-h-[500px] w-full"></div>
+          <div ref={checkoutElementRef} className="min-h-[500px] w-full"></div>
         </div>
       </DialogContent>
     </Dialog>
