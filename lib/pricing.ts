@@ -1,8 +1,10 @@
 import { createClient } from '@/utils/supabase/server'
-import { PricingPlan, formatPrice, getBillingPeriodLabel, calculateMonthlyEquivalent } from '@/lib/pricing-client'
+import { formatPrice, getBillingPeriodLabel, calculateMonthlyEquivalent } from '@/lib/pricing-client'
+import type { PricingPlan } from '@/lib/pricing-client'
 
 // Re-export client utilities for server-side use
-export { PricingPlan, formatPrice, getBillingPeriodLabel, calculateMonthlyEquivalent }
+export type { PricingPlan }
+export { formatPrice, getBillingPeriodLabel, calculateMonthlyEquivalent }
 
 export async function getPricingPlans(): Promise<PricingPlan[]> {
   const supabase = await createClient()
