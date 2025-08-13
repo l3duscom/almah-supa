@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Crown } from 'lucide-react'
@@ -23,68 +23,64 @@ declare global {
   }
 }
 
+// Global variable to track if there's an active checkout
+let activeCheckout: { destroy: () => void } | null = null
+
 export function StripeEmbeddedCheckout({ plan, isOpen, onClose }: StripeEmbeddedCheckoutProps) {
   const [loading, setLoading] = useState(false)
-  const [checkout, setCheckout] = useState<{ mount: (selector: string) => void; destroy: () => void } | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const [isInitialized, setIsInitialized] = useState(false)
-  const checkoutElementRef = useRef<HTMLDivElement>(null)
-  const isMountedRef = useRef(false)
+  const checkoutMountedRef = useRef(false)
 
-  // Cleanup function
-  const cleanupCheckout = useCallback(() => {
-    if (checkout) {
+  // Simple cleanup function without dependencies
+  const cleanup = () => {
+    if (activeCheckout) {
       try {
-        checkout.destroy()
+        activeCheckout.destroy()
       } catch (err) {
         console.warn('Error destroying checkout:', err)
       }
-      setCheckout(null)
+      activeCheckout = null
     }
     
-    // Clear the DOM element using ref
-    if (checkoutElementRef.current) {
-      checkoutElementRef.current.innerHTML = ''
-    }
+    // Clear any checkout elements
+    const elements = document.querySelectorAll('[id^="stripe-checkout-"]')
+    elements.forEach(el => {
+      el.innerHTML = ''
+    })
     
-    isMountedRef.current = false
-    setIsInitialized(false)
+    checkoutMountedRef.current = false
     setError(null)
     setLoading(false)
-  }, [checkout])
+  }
 
   useEffect(() => {
     if (!isOpen || !plan) {
-      cleanupCheckout()
-      return
+      cleanup()
+      return cleanup
     }
 
     // Prevent multiple initializations
-    if (isInitialized) {
+    if (checkoutMountedRef.current) {
       return
     }
 
     const initializeCheckout = async () => {
-      // Mark as initializing to prevent concurrent calls
-      setIsInitialized(true)
       setLoading(true)
       setError(null)
       
-      if (!window.Stripe) {
-        setError('Stripe não foi carregado. Recarregue a página.')
-        setLoading(false)
-        setIsInitialized(false)
-        return
-      }
-
-      if (!process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY) {
-        setError('Chave pública do Stripe não configurada.')
-        setLoading(false)
-        setIsInitialized(false)
-        return
-      }
-
       try {
+        // Destroy any existing checkout first
+        cleanup()
+        
+        if (!window.Stripe) {
+          throw new Error('Stripe não foi carregado')
+        }
+
+        const publishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
+        if (!publishableKey) {
+          throw new Error('Chave pública do Stripe não configurada')
+        }
+
         // Create checkout session
         const response = await fetch('/api/stripe/checkout', {
           method: 'POST',
@@ -97,83 +93,46 @@ export function StripeEmbeddedCheckout({ plan, isOpen, onClose }: StripeEmbedded
         })
 
         if (!response.ok) {
-          setError(`Erro na API: ${response.status}`)
-          setLoading(false)
-          setIsInitialized(false)
-          return
+          throw new Error(`Erro na API: ${response.status}`)
         }
 
         const result = await response.json()
         const { clientSecret, error: apiError } = result
 
         if (apiError) {
-          setError(apiError)
-          setLoading(false)
-          setIsInitialized(false)
-          return
+          throw new Error(apiError)
         }
 
         if (!clientSecret) {
-          setError('Client secret não recebido da API')
-          setLoading(false)
-          setIsInitialized(false)
-          return
+          throw new Error('Client secret não recebido')
         }
 
-        // Initialize Stripe embedded checkout
-        const publishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
-        
-        if (!publishableKey) {
-          throw new Error('Chave pública do Stripe não configurada')
-        }
-        
+        // Initialize Stripe and embedded checkout
         const stripe = window.Stripe(publishableKey)
-        
         if (!stripe) {
           throw new Error('Falha ao inicializar Stripe')
         }
-        
+
         const embeddedCheckout = await stripe.initEmbeddedCheckout({
           clientSecret: clientSecret,
         })
 
-        setCheckout(embeddedCheckout)
-
-        // Wait a bit for the DOM to be ready and check if element exists before mounting
+        // Store reference globally
+        activeCheckout = embeddedCheckout
+        
+        // Wait for DOM and mount
         setTimeout(() => {
-          if (checkoutElementRef.current && isOpen && !isMountedRef.current) {
-            // Clear any existing content
-            checkoutElementRef.current.innerHTML = ''
-            
-            // Add a unique ID to the element for Stripe to mount on
-            const elementId = 'embedded-checkout-' + Date.now()
-            checkoutElementRef.current.id = elementId
-            
-            try {
-              embeddedCheckout.mount('#' + elementId)
-              isMountedRef.current = true
-            } catch (mountError) {
-              console.warn('Failed to mount checkout:', mountError)
-              setError('Erro ao carregar checkout. Tente novamente.')
-              setLoading(false)
-              setIsInitialized(false)
-            }
-          } else if (!isOpen) {
-            // Modal was closed before mounting, clean up
-            try {
-              embeddedCheckout.destroy()
-            } catch (destroyError) {
-              console.warn('Error destroying unmounted checkout:', destroyError)
-            }
-            setIsInitialized(false)
+          const element = document.getElementById('stripe-checkout-container')
+          if (element && isOpen && !checkoutMountedRef.current) {
+            element.innerHTML = ''
+            embeddedCheckout.mount('#stripe-checkout-container')
+            checkoutMountedRef.current = true
           }
-        }, 100)
+        }, 50)
 
       } catch (err) {
         console.error('Checkout initialization error:', err)
-        setError(`Erro: ${(err as Error).message || 'Erro desconhecido'}`)
-        setLoading(false)
-        setIsInitialized(false)
+        setError((err as Error).message || 'Erro desconhecido')
       } finally {
         setLoading(false)
       }
@@ -181,12 +140,11 @@ export function StripeEmbeddedCheckout({ plan, isOpen, onClose }: StripeEmbedded
 
     initializeCheckout()
 
-    // Cleanup on unmount
-    return cleanupCheckout
-  }, [isOpen, plan, isInitialized, cleanupCheckout])
+    return cleanup
+  }, [isOpen, plan?.stripe_price_id]) // Only depend on simple values
 
   const handleClose = () => {
-    cleanupCheckout()
+    cleanup()
     onClose()
   }
 
@@ -194,7 +152,6 @@ export function StripeEmbeddedCheckout({ plan, isOpen, onClose }: StripeEmbedded
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => {
-      // Only allow closing via the X button, not by clicking outside
       if (!open && !loading) {
         handleClose()
       }
@@ -234,7 +191,7 @@ export function StripeEmbeddedCheckout({ plan, isOpen, onClose }: StripeEmbedded
           )}
 
           {/* Stripe embedded checkout will be mounted here */}
-          <div ref={checkoutElementRef} className="min-h-[500px] w-full"></div>
+          <div id="stripe-checkout-container" className="min-h-[500px] w-full"></div>
         </div>
       </DialogContent>
     </Dialog>
