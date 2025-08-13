@@ -78,22 +78,5 @@ export default function StripeCheckoutButton({
   )
 }
 
-// Higher-order component for easier usage
-export function PremiumCheckoutButton({ 
-  children, 
-  className,
-  disabled = false 
-}: Omit<StripeCheckoutButtonProps, 'priceId'>) {
-  // Replace with your actual Stripe Price ID for Premium plan
-  const PREMIUM_PRICE_ID = process.env.NEXT_PUBLIC_STRIPE_PREMIUM_PRICE_ID || 'price_premium_placeholder'
-  
-  return (
-    <StripeCheckoutButton 
-      priceId={PREMIUM_PRICE_ID}
-      className={className}
-      disabled={disabled}
-    >
-      {children}
-    </StripeCheckoutButton>
-  )
-}
+// Export the main component for direct use with any price ID
+export { StripeCheckoutButton }

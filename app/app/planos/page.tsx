@@ -1,16 +1,18 @@
 import { requireAuth } from '@/lib/auth'
 import { getUserSubscription, getPlanDisplayName, getPlanFeatures } from '@/lib/subscription'
 import { createClient } from '@/utils/supabase/server'
+import { getPricingPlans } from '@/lib/pricing'
 import { Button } from '@/components/ui/button'
-import { Check, Crown, Users } from 'lucide-react'
+import { Crown, Users } from 'lucide-react'
+import { PricingCard } from '@/components/pricing-card'
 import Link from 'next/link'
-import { PremiumCheckoutButton } from '@/components/stripe-checkout-button'
 import Script from 'next/script'
 
 export default async function PlanosPage() {
   const user = await requireAuth()
   const subscription = await getUserSubscription(user.id)
   const supabase = await createClient()
+  const pricingPlans = await getPricingPlans()
 
   // Get current user's group count
   const { count: groupCount } = await supabase
@@ -24,7 +26,12 @@ export default async function PlanosPage() {
     : true
 
   const freeFeatures = getPlanFeatures('free')
-  const premiumFeatures = getPlanFeatures('premium')
+
+  // Group plans by billing period for better display
+  const monthlyPlans = pricingPlans.filter(p => p.billing_period === 'monthly')
+  const quarterlyPlans = pricingPlans.filter(p => p.billing_period === 'quarterly')
+  const semiannualPlans = pricingPlans.filter(p => p.billing_period === 'semiannual')
+  const annualPlans = pricingPlans.filter(p => p.billing_period === 'annual')
 
   return (
     <>
@@ -78,10 +85,9 @@ export default async function PlanosPage() {
         </div>
       </div>
 
-      {/* Plans Comparison */}
-      <div id="upgrade" className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {/* Free Plan */}
-        <div className="bg-gray-800 p-6 rounded-lg border-2 border-gray-700">
+      {/* Free Plan */}
+      <div id="upgrade" className="mb-8">
+        <div className="bg-gray-800 p-6 rounded-lg border-2 border-gray-700 max-w-md mx-auto">
           <div className="text-center mb-6">
             <Users className="w-12 h-12 text-blue-400 mx-auto mb-4" />
             <h3 className="text-2xl font-bold text-white">Gratuito</h3>
@@ -94,7 +100,7 @@ export default async function PlanosPage() {
           <ul className="space-y-3 mb-6">
             {freeFeatures.map((feature, index) => (
               <li key={index} className="flex items-center gap-2">
-                <Check className="w-4 h-4 text-green-400 flex-shrink-0" />
+                <span className="w-4 h-4 text-green-400 flex-shrink-0">✓</span>
                 <span className="text-gray-300">{feature}</span>
               </li>
             ))}
@@ -108,49 +114,79 @@ export default async function PlanosPage() {
             {currentPlan === 'free' ? 'Plano Atual' : 'Downgrade para Gratuito'}
           </Button>
         </div>
+      </div>
 
-        {/* Premium Plan */}
-        <div className="bg-gray-800 p-6 rounded-lg border-2 border-yellow-400 relative">
-          <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-            <span className="bg-yellow-400 text-black px-4 py-1 rounded-full text-sm font-medium">
-              Recomendado
-            </span>
+      {/* Premium Plans */}
+      <div className="space-y-8">
+        <h2 className="text-2xl font-bold text-white text-center mb-6">
+          Planos Premium
+        </h2>
+        
+        {/* Monthly Plans */}
+        {monthlyPlans.length > 0 && (
+          <div>
+            <h3 className="text-lg font-semibold text-white mb-4 text-center">Mensal</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {monthlyPlans.map((plan) => (
+                <PricingCard
+                  key={plan.id}
+                  plan={plan}
+                  isCurrentPlan={currentPlan === 'premium' && isActive}
+                />
+              ))}
+            </div>
           </div>
+        )}
 
-          <div className="text-center mb-6">
-            <Crown className="w-12 h-12 text-yellow-400 mx-auto mb-4" />
-            <h3 className="text-2xl font-bold text-white">Premium</h3>
-            <p className="text-3xl font-bold text-yellow-400 mt-2">
-              R$ 19<span className="text-sm text-gray-400">/mês</span>
-            </p>
-            <p className="text-gray-400 mt-2">Para usuários avançados</p>
+        {/* Quarterly Plans */}
+        {quarterlyPlans.length > 0 && (
+          <div>
+            <h3 className="text-lg font-semibold text-white mb-4 text-center">Trimestral</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {quarterlyPlans.map((plan) => (
+                <PricingCard
+                  key={plan.id}
+                  plan={plan}
+                  isCurrentPlan={currentPlan === 'premium' && isActive}
+                />
+              ))}
+            </div>
           </div>
+        )}
 
-          <ul className="space-y-3 mb-6">
-            {premiumFeatures.map((feature, index) => (
-              <li key={index} className="flex items-center gap-2">
-                <Check className="w-4 h-4 text-green-400 flex-shrink-0" />
-                <span className="text-gray-300">{feature}</span>
-              </li>
-            ))}
-          </ul>
+        {/* Semiannual Plans */}
+        {semiannualPlans.length > 0 && (
+          <div>
+            <h3 className="text-lg font-semibold text-white mb-4 text-center">Semestral</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {semiannualPlans.map((plan) => (
+                <PricingCard
+                  key={plan.id}
+                  plan={plan}
+                  isRecommended={true}
+                  isCurrentPlan={currentPlan === 'premium' && isActive}
+                />
+              ))}
+            </div>
+          </div>
+        )}
 
-          {currentPlan === 'premium' && isActive ? (
-            <Button 
-              className="w-full bg-yellow-400 text-black"
-              disabled
-            >
-              Plano Atual
-            </Button>
-          ) : (
-            <PremiumCheckoutButton 
-              className="w-full bg-yellow-400 text-black hover:bg-yellow-500"
-            >
-              <Crown className="w-4 h-4 mr-2" />
-              Fazer Upgrade para Premium
-            </PremiumCheckoutButton>
-          )}
-        </div>
+        {/* Annual Plans */}
+        {annualPlans.length > 0 && (
+          <div>
+            <h3 className="text-lg font-semibold text-white mb-4 text-center">Anual</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {annualPlans.map((plan) => (
+                <PricingCard
+                  key={plan.id}
+                  plan={plan}
+                  isRecommended={true}
+                  isCurrentPlan={currentPlan === 'premium' && isActive}
+                />
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* FAQ */}
