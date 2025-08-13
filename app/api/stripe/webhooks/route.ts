@@ -7,6 +7,8 @@ import { createClient } from '@supabase/supabase-js'
 const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET!
 
 export async function POST(req: NextRequest) {
+  console.log('Webhook received:', req.url)
+  
   const body = await req.text()
   const headersList = await headers()
   const sig = headersList.get('stripe-signature')!
@@ -15,6 +17,7 @@ export async function POST(req: NextRequest) {
 
   try {
     event = stripe.webhooks.constructEvent(body, sig, endpointSecret)
+    console.log('Webhook event verified:', event.type, event.id)
   } catch (err: unknown) {
     console.error(`Webhook signature verification failed.`, (err as Error).message)
     return NextResponse.json(
@@ -30,36 +33,55 @@ export async function POST(req: NextRequest) {
   )
 
   try {
+    console.log('Processing webhook event:', event.type)
+    
     switch (event.type) {
       case 'customer.subscription.created':
       case 'customer.subscription.updated': {
         const subscription = event.data.object as Stripe.Subscription
         const customerId = subscription.customer as string
         
+        console.log('Processing subscription:', subscription.id, 'for customer:', customerId)
+        
         // Get user ID from subscription metadata or customer
         let userId = subscription.metadata.supabase_user_id
         
         if (!userId) {
+          console.log('No userId in metadata, looking up by customer ID')
           // Fallback: get user by customer ID
-          const { data: user } = await supabase
+          const { data: user, error: userError } = await supabase
             .from('users')
             .select('id')
             .eq('stripe_customer_id', customerId)
             .single()
           
+          if (userError) {
+            console.error('Error fetching user by customer ID:', userError)
+          }
+          
           userId = user?.id
         }
 
         if (!userId) {
-          console.error('No user found for subscription:', subscription.id)
+          console.error('No user found for subscription:', subscription.id, 'customer:', customerId)
           return NextResponse.json({ error: 'User not found' }, { status: 400 })
         }
+        
+        console.log('Found userId:', userId)
 
         // Update user subscription status
         const isActive = subscription.status === 'active'
         const currentPeriodEnd = new Date((subscription as unknown as { current_period_end: number }).current_period_end * 1000)
 
-        await supabase
+        console.log('Updating user subscription:', {
+          userId,
+          isActive,
+          subscriptionId: subscription.id,
+          customerId,
+          currentPeriodEnd: currentPeriodEnd.toISOString()
+        })
+
+        const { error: updateError } = await supabase
           .from('users')
           .update({
             plan: isActive ? 'premium' : 'free',
@@ -71,7 +93,12 @@ export async function POST(req: NextRequest) {
           })
           .eq('id', userId)
 
-        console.log(`Subscription ${subscription.status} for user ${userId}`)
+        if (updateError) {
+          console.error('Error updating user subscription:', updateError)
+          return NextResponse.json({ error: 'Failed to update user' }, { status: 500 })
+        }
+
+        console.log(`Subscription ${subscription.status} for user ${userId} updated successfully`)
         break
       }
 
