@@ -4,7 +4,7 @@ import { Check, Crown } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import StripeCheckoutButton from '@/components/stripe-checkout-button'
-import { PricingPlan, formatPrice, getBillingPeriodLabel, calculateMonthlyEquivalent } from '@/lib/pricing'
+import { PricingPlan, formatPrice, getBillingPeriodLabel, calculateMonthlyEquivalent } from '@/lib/pricing-client'
 
 interface PricingCardProps {
   plan: PricingPlan
