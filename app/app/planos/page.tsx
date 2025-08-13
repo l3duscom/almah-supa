@@ -1,8 +1,24 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { requireAuth } from '@/lib/auth'
-import { getUserSubscription, getPlanDisplayName, getPlanFeatures } from '@/lib/subscription'
+// Client-side plan features
+const getPlanFeatures = (plan: string) => {
+  if (plan === 'free') {
+    return [
+      'Até 3 grupos',
+      'Até 20 participantes por grupo',
+      'Sorteio básico',
+      'Suporte por email'
+    ]
+  }
+  return [
+    'Grupos ilimitados',
+    'Participantes ilimitados', 
+    'Histórico completo',
+    'Suporte prioritário',
+    'Temas personalizados'
+  ]
+}
 import { createClient } from '@/utils/supabase/client'
 import { PricingPlan } from '@/lib/pricing-client'
 import { Button } from '@/components/ui/button'
@@ -12,9 +28,16 @@ import { StripeEmbeddedCheckout } from '@/components/stripe-embedded-checkout'
 import Link from 'next/link'
 import Script from 'next/script'
 
+interface Subscription {
+  plan: string
+  plan_expires_at: string | null
+  stripe_customer_id: string | null
+  stripe_subscription_id: string | null
+}
+
 export default function PlanosPage() {
-  const [user, setUser] = useState<any>(null)
-  const [subscription, setSubscription] = useState<any>(null)
+  // const [user, setUser] = useState<User | null>(null)
+  const [subscription, setSubscription] = useState<Subscription | null>(null)
   const [pricingPlans, setPricingPlans] = useState<PricingPlan[]>([])
   const [groupCount, setGroupCount] = useState<number>(0)
   const [loading, setLoading] = useState(true)
@@ -32,7 +55,7 @@ export default function PlanosPage() {
           window.location.href = '/login'
           return
         }
-        setUser(user)
+        // setUser(user)
 
         // Get user subscription
         const { data: userProfile } = await supabase
@@ -129,7 +152,7 @@ export default function PlanosPage() {
                 <Users className="w-5 h-5 text-blue-400" />
               )}
               <span className="text-lg font-medium text-white">
-                Plano {getPlanDisplayName(currentPlan)}
+                Plano {currentPlan === 'premium' ? 'Premium' : 'Gratuito'}
               </span>
               {!isActive && currentPlan === 'premium' && (
                 <span className="px-2 py-1 bg-red-600 text-white text-xs rounded">
