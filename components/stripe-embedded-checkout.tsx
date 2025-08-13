@@ -157,7 +157,7 @@ export function StripeEmbeddedCheckout({ plan, isOpen, onClose }: StripeEmbedded
       }
     }}>
       <DialogContent 
-        className="w-full max-w-none max-h-[90vh] flex flex-col p-0 bg-white m-4"
+        className="w-[500px] max-h-[90vh] flex flex-col p-0 bg-white"
         onPointerDownOutside={(e) => e.preventDefault()}
         onEscapeKeyDown={() => !loading && handleClose()}
       >
