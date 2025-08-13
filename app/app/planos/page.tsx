@@ -23,10 +23,8 @@ import { createClient } from '@/utils/supabase/client'
 import { PricingPlan } from '@/lib/pricing-client'
 import { Button } from '@/components/ui/button'
 import { Crown, Users } from 'lucide-react'
-import { PricingCard } from '@/components/pricing-card'
 import { StripeEmbeddedCheckout } from '@/components/stripe-embedded-checkout'
 import { CancelSubscriptionModal } from '@/components/cancel-subscription-modal'
-import Link from 'next/link'
 import Script from 'next/script'
 
 interface Subscription {
@@ -40,11 +38,11 @@ export default function PlanosPage() {
   // const [user, setUser] = useState<User | null>(null)
   const [subscription, setSubscription] = useState<Subscription | null>(null)
   const [pricingPlans, setPricingPlans] = useState<PricingPlan[]>([])
-  const [groupCount, setGroupCount] = useState<number>(0)
   const [loading, setLoading] = useState(true)
   const [selectedPlan, setSelectedPlan] = useState<PricingPlan | null>(null)
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false)
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false)
+  const [selectedBillingPeriod, setSelectedBillingPeriod] = useState<'monthly' | 'semiannual' | 'annual'>('annual')
 
   useEffect(() => {
     const loadData = async () => {
@@ -77,14 +75,6 @@ export default function PlanosPage() {
         
         setPricingPlans(plans || [])
 
-        // Get current user's group count
-        const { count } = await supabase
-          .from('groups')
-          .select('*', { count: 'exact', head: true })
-          .eq('owner_id', user.id)
-        
-        setGroupCount(count || 0)
-
       } catch (error) {
         console.error('Error loading data:', error)
       } finally {
@@ -98,6 +88,13 @@ export default function PlanosPage() {
   const handleSubscribe = (plan: PricingPlan) => {
     setSelectedPlan(plan)
     setIsCheckoutOpen(true)
+  }
+
+  const handleUpgrade = () => {
+    const selectedPeriodPlan = pricingPlans.find(p => p.billing_period === selectedBillingPeriod)
+    if (selectedPeriodPlan) {
+      handleSubscribe(selectedPeriodPlan)
+    }
   }
 
   const handleCheckoutClose = () => {
@@ -142,227 +139,251 @@ export default function PlanosPage() {
     : true
 
   const freeFeatures = getPlanFeatures('free')
+  const premiumFeatures = getPlanFeatures('premium')
 
-  // Group plans by billing period for better display
-  const monthlyPlans = pricingPlans.filter(p => p.billing_period === 'monthly')
-  const quarterlyPlans = pricingPlans.filter(p => p.billing_period === 'quarterly')
-  const semiannualPlans = pricingPlans.filter(p => p.billing_period === 'semiannual')
-  const annualPlans = pricingPlans.filter(p => p.billing_period === 'annual')
+  // Get pricing for selected period
+  const selectedPeriodPlan = pricingPlans.find(p => p.billing_period === selectedBillingPeriod)
+  const monthlyPlan = pricingPlans.find(p => p.billing_period === 'monthly')
+  const semiannualPlan = pricingPlans.find(p => p.billing_period === 'semiannual')
+  const annualPlan = pricingPlans.find(p => p.billing_period === 'annual')
+
+  // Calculate savings
+  const calculateSavings = (plan: PricingPlan | undefined) => {
+    if (!plan || !monthlyPlan) return null
+    const monthlyTotal = monthlyPlan.price_cents * (plan.billing_period === 'semiannual' ? 6 : 12)
+    const savings = monthlyTotal - plan.price_cents
+    const percentage = Math.round((savings / monthlyTotal) * 100)
+    return { amount: savings, percentage }
+  }
 
   return (
     <>
       <Script src="https://js.stripe.com/v3/" />
-      <div className="container mx-auto px-4 py-8">
-      <div className="mb-8 text-center">
-        <h1 className="text-3xl font-bold text-white mb-2">
-          Planos e Assinatura
-        </h1>
-        <p className="text-gray-400">
-          Escolha o plano ideal para suas necessidades
-        </p>
+      
+      {/* Hero Section */}
+      <div className="bg-gradient-to-b from-gray-900 to-gray-800 py-16">
+        <div className="container mx-auto px-4 text-center">
+          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
+            Escolha seu plano
+          </h1>
+          <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
+            Comece grátis ou desbloqueie todos os recursos com o Premium
+          </p>
+          
+          {/* Current Plan Badge */}
+          {currentPlan === 'premium' && isActive && (
+            <div className="inline-flex items-center gap-2 bg-yellow-500/10 text-yellow-400 px-4 py-2 rounded-full mb-8">
+              <Crown className="w-4 h-4" />
+              <span>Você está no plano Premium</span>
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={() => setIsCancelModalOpen(true)}
+                className="text-yellow-400 hover:text-yellow-300 ml-2"
+              >
+                Cancelar
+              </Button>
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Current Plan Status */}
-      <div className="mb-8 bg-gray-800 p-6 rounded-lg">
-        <h2 className="text-xl font-semibold text-white mb-4">
-          Seu Plano Atual
-        </h2>
-        <div className="flex items-center justify-between">
-          <div>
-            <div className="flex items-center gap-2">
-              {currentPlan === 'premium' ? (
-                <Crown className="w-5 h-5 text-yellow-400" />
-              ) : (
-                <Users className="w-5 h-5 text-blue-400" />
-              )}
-              <span className="text-lg font-medium text-white">
-                Plano {currentPlan === 'premium' ? 'Premium' : 'Gratuito'}
-              </span>
-              {!isActive && currentPlan === 'premium' && (
-                <span className="px-2 py-1 bg-red-600 text-white text-xs rounded">
-                  Expirado
+      {/* Pricing Section */}
+      <div className="bg-gray-900 py-16">
+        <div className="container mx-auto px-4">
+          
+          {/* Billing Period Toggle */}
+          <div className="flex justify-center mb-12">
+            <div className="bg-gray-800 p-1 rounded-lg flex">
+              <button
+                onClick={() => setSelectedBillingPeriod('monthly')}
+                className={`px-6 py-2 rounded-md text-sm font-medium transition-all ${
+                  selectedBillingPeriod === 'monthly'
+                    ? 'bg-gray-700 text-white shadow-sm'
+                    : 'text-gray-400 hover:text-white'
+                }`}
+              >
+                Mensal
+              </button>
+              <button
+                onClick={() => setSelectedBillingPeriod('semiannual')}
+                className={`px-6 py-2 rounded-md text-sm font-medium transition-all relative ${
+                  selectedBillingPeriod === 'semiannual'
+                    ? 'bg-gray-700 text-white shadow-sm'
+                    : 'text-gray-400 hover:text-white'
+                }`}
+              >
+                Semestral
+                {semiannualPlan && (
+                  <span className="absolute -top-2 -right-1 bg-green-500 text-white text-xs px-1.5 py-0.5 rounded-full">
+                    -{calculateSavings(semiannualPlan)?.percentage}%
+                  </span>
+                )}
+              </button>
+              <button
+                onClick={() => setSelectedBillingPeriod('annual')}
+                className={`px-6 py-2 rounded-md text-sm font-medium transition-all relative ${
+                  selectedBillingPeriod === 'annual'
+                    ? 'bg-gray-700 text-white shadow-sm'
+                    : 'text-gray-400 hover:text-white'
+                }`}
+              >
+                Anual
+                {annualPlan && (
+                  <span className="absolute -top-2 -right-1 bg-green-500 text-white text-xs px-1.5 py-0.5 rounded-full">
+                    -{calculateSavings(annualPlan)?.percentage}%
+                  </span>
+                )}
+              </button>
+            </div>
+          </div>
+
+          {/* Plans Grid */}
+          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            
+            {/* Free Plan */}
+            <div className="bg-gray-800 rounded-2xl border-2 border-gray-700 p-8">
+              <div className="text-center mb-8">
+                <Users className="w-12 h-12 text-blue-400 mx-auto mb-4" />
+                <h3 className="text-2xl font-bold text-white mb-2">Gratuito</h3>
+                <div className="text-4xl font-bold text-white mb-2">
+                  R$ 0
+                  <span className="text-lg text-gray-400 font-normal">/mês</span>
+                </div>
+                <p className="text-gray-400">Perfeito para começar</p>
+              </div>
+
+              <ul className="space-y-4 mb-8">
+                {freeFeatures.map((feature, index) => (
+                  <li key={index} className="flex items-center gap-3">
+                    <div className="w-5 h-5 bg-blue-900/50 rounded-full flex items-center justify-center">
+                      <span className="text-blue-400 text-sm">✓</span>
+                    </div>
+                    <span className="text-gray-300">{feature}</span>
+                  </li>
+                ))}
+              </ul>
+
+              <Button 
+                variant="outline" 
+                className="w-full h-12 border-gray-600 text-gray-300 hover:text-white hover:border-gray-500"
+                disabled={currentPlan === 'free'}
+              >
+                {currentPlan === 'free' ? 'Seu plano atual' : 'Plano gratuito'}
+              </Button>
+            </div>
+
+            {/* Premium Plan */}
+            <div className="bg-gradient-to-br from-yellow-900/20 to-yellow-800/20 rounded-2xl border-2 border-yellow-500 p-8 relative">
+              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                <span className="bg-yellow-500 text-gray-900 px-4 py-1.5 rounded-full text-sm font-medium">
+                  Mais Popular
                 </span>
+              </div>
+
+              <div className="text-center mb-8">
+                <Crown className="w-12 h-12 text-yellow-400 mx-auto mb-4" />
+                <h3 className="text-2xl font-bold text-white mb-2">Premium</h3>
+                
+                {selectedPeriodPlan && (
+                  <>
+                    <div className="text-4xl font-bold text-white mb-2">
+                      R$ {Math.floor(selectedPeriodPlan.price_cents / 100)}
+                      <span className="text-lg text-gray-400 font-normal">
+                        /{selectedBillingPeriod === 'monthly' ? 'mês' : 
+                          selectedBillingPeriod === 'semiannual' ? '6 meses' : 'ano'}
+                      </span>
+                    </div>
+                    
+                    {selectedBillingPeriod !== 'monthly' && monthlyPlan && (
+                      <p className="text-gray-400 text-sm">
+                        Equivale a R$ {Math.floor(selectedPeriodPlan.price_cents / 100 / (selectedBillingPeriod === 'semiannual' ? 6 : 12))}/mês
+                      </p>
+                    )}
+                  </>
+                )}
+                
+                <p className="text-gray-400 mt-2">Para uso profissional</p>
+              </div>
+
+              <ul className="space-y-4 mb-8">
+                {premiumFeatures.map((feature, index) => (
+                  <li key={index} className="flex items-center gap-3">
+                    <div className="w-5 h-5 bg-yellow-900/50 rounded-full flex items-center justify-center">
+                      <span className="text-yellow-400 text-sm">✓</span>
+                    </div>
+                    <span className="text-gray-300">{feature}</span>
+                  </li>
+                ))}
+              </ul>
+
+              {currentPlan === 'premium' && isActive ? (
+                <Button className="w-full h-12 bg-yellow-500 hover:bg-yellow-600 text-gray-900" disabled>
+                  Seu plano atual
+                </Button>
+              ) : (
+                <Button 
+                  className="w-full h-12 bg-yellow-500 hover:bg-yellow-600 text-gray-900"
+                  onClick={handleUpgrade}
+                  disabled={!selectedPeriodPlan}
+                >
+                  <Crown className="w-4 h-4 mr-2" />
+                  Fazer upgrade
+                </Button>
               )}
             </div>
-            <p className="text-sm text-gray-400 mt-1">
-              {groupCount} grupo(s) criado(s) {currentPlan === 'free' && '• Limite: 3 grupos'}
-            </p>
-            {subscription?.plan_expires_at && (
-              <p className="text-sm text-gray-400">
-                {isActive ? 'Renova em' : 'Expirou em'}: {new Date(subscription.plan_expires_at).toLocaleDateString('pt-BR')}
+          </div>
+        </div>
+      </div>
+
+      {/* FAQ Section */}
+      <div className="bg-gray-800 py-16">
+        <div className="container mx-auto px-4">
+          <h2 className="text-3xl font-bold text-white mb-12 text-center">
+            Perguntas Frequentes
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            <div className="bg-gray-700 p-6 rounded-lg border border-gray-600">
+              <h3 className="text-lg font-semibold text-white mb-3">
+                Posso cancelar a qualquer momento?
+              </h3>
+              <p className="text-gray-300">
+                Sim! Você pode cancelar sua assinatura Premium a qualquer momento. 
+                Você continuará tendo acesso aos recursos Premium até o final do período pago.
               </p>
-            )}
-          </div>
-          {currentPlan === 'free' ? (
-            <Button asChild>
-              <Link href="#upgrade">Fazer Upgrade</Link>
-            </Button>
-          ) : isActive ? (
-            <Button 
-              variant="outline"
-              onClick={() => setIsCancelModalOpen(true)}
-            >
-              Cancelar Assinatura
-            </Button>
-          ) : null}
-        </div>
-      </div>
-
-      {/* Free Plan */}
-      <div id="upgrade" className="mb-8">
-        <div className="bg-gray-800 p-6 rounded-lg border-2 border-gray-700 max-w-md mx-auto">
-          <div className="text-center mb-6">
-            <Users className="w-12 h-12 text-blue-400 mx-auto mb-4" />
-            <h3 className="text-2xl font-bold text-white">Gratuito</h3>
-            <p className="text-3xl font-bold text-blue-400 mt-2">
-              R$ 0<span className="text-sm text-gray-400">/mês</span>
-            </p>
-            <p className="text-gray-400 mt-2">Perfeito para começar</p>
-          </div>
-
-          <ul className="space-y-3 mb-6">
-            {freeFeatures.map((feature, index) => (
-              <li key={index} className="flex items-center gap-2">
-                <span className="w-4 h-4 text-green-400 flex-shrink-0">✓</span>
-                <span className="text-gray-300">{feature}</span>
-              </li>
-            ))}
-          </ul>
-
-          <Button 
-            variant="outline" 
-            className="w-full"
-            disabled={currentPlan === 'free'}
-          >
-            {currentPlan === 'free' ? 'Plano Atual' : 'Downgrade para Gratuito'}
-          </Button>
-        </div>
-      </div>
-
-      {/* Premium Plans */}
-      <div className="space-y-8">
-        <h2 className="text-2xl font-bold text-white text-center mb-6">
-          Planos Premium
-        </h2>
-        
-        {/* Monthly Plans */}
-        {monthlyPlans.length > 0 && (
-          <div>
-            <h3 className="text-lg font-semibold text-white mb-4 text-center">Mensal</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {monthlyPlans.map((plan) => (
-                <PricingCard
-                  key={plan.id}
-                  plan={plan}
-                  isCurrentPlan={currentPlan === 'premium' && isActive}
-                  onSubscribe={handleSubscribe}
-                />
-              ))}
             </div>
-          </div>
-        )}
 
-        {/* Quarterly Plans */}
-        {quarterlyPlans.length > 0 && (
-          <div>
-            <h3 className="text-lg font-semibold text-white mb-4 text-center">Trimestral</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {quarterlyPlans.map((plan) => (
-                <PricingCard
-                  key={plan.id}
-                  plan={plan}
-                  isCurrentPlan={currentPlan === 'premium' && isActive}
-                  onSubscribe={handleSubscribe}
-                />
-              ))}
+            <div className="bg-gray-700 p-6 rounded-lg border border-gray-600">
+              <h3 className="text-lg font-semibold text-white mb-3">
+                O que acontece com meus grupos no plano gratuito?
+              </h3>
+              <p className="text-gray-300">
+                Se você fizer downgrade para o plano gratuito, seus grupos existentes 
+                permanecerão ativos, mas você só poderá criar novos grupos dentro do limite gratuito.
+              </p>
             </div>
-          </div>
-        )}
 
-        {/* Semiannual Plans */}
-        {semiannualPlans.length > 0 && (
-          <div>
-            <h3 className="text-lg font-semibold text-white mb-4 text-center">Semestral</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {semiannualPlans.map((plan) => (
-                <PricingCard
-                  key={plan.id}
-                  plan={plan}
-                  isRecommended={true}
-                  isCurrentPlan={currentPlan === 'premium' && isActive}
-                  onSubscribe={handleSubscribe}
-                />
-              ))}
+            <div className="bg-gray-700 p-6 rounded-lg border border-gray-600">
+              <h3 className="text-lg font-semibold text-white mb-3">
+                Como funciona o pagamento?
+              </h3>
+              <p className="text-gray-300">
+                O pagamento é processado de forma segura através do Stripe. 
+                Os planos semestral e anual são cobrados uma única vez no período.
+              </p>
             </div>
-          </div>
-        )}
 
-        {/* Annual Plans */}
-        {annualPlans.length > 0 && (
-          <div>
-            <h3 className="text-lg font-semibold text-white mb-4 text-center">Anual</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {annualPlans.map((plan) => (
-                <PricingCard
-                  key={plan.id}
-                  plan={plan}
-                  isRecommended={true}
-                  isCurrentPlan={currentPlan === 'premium' && isActive}
-                  onSubscribe={handleSubscribe}
-                />
-              ))}
+            <div className="bg-gray-700 p-6 rounded-lg border border-gray-600">
+              <h3 className="text-lg font-semibold text-white mb-3">
+                Preciso de ajuda?
+              </h3>
+              <p className="text-gray-300">
+                Entre em contato conosco através do email suporte@amigsosecreto.com 
+                ou pelo chat no site. Usuários Premium têm suporte prioritário!
+              </p>
             </div>
-          </div>
-        )}
-      </div>
-
-      {/* FAQ */}
-      <div className="mt-12">
-        <h2 className="text-2xl font-bold text-white mb-6 text-center">
-          Perguntas Frequentes
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-gray-800 p-6 rounded-lg">
-            <h3 className="text-lg font-semibold text-white mb-3">
-              Posso cancelar a qualquer momento?
-            </h3>
-            <p className="text-gray-300">
-              Sim! Você pode cancelar sua assinatura Premium a qualquer momento. 
-              Você continuará tendo acesso aos recursos Premium até o final do período pago.
-            </p>
-          </div>
-
-          <div className="bg-gray-800 p-6 rounded-lg">
-            <h3 className="text-lg font-semibold text-white mb-3">
-              O que acontece com meus grupos no plano gratuito?
-            </h3>
-            <p className="text-gray-300">
-              Se você fizer downgrade para o plano gratuito, seus grupos existentes 
-              permanecerão ativos, mas você só poderá criar novos grupos dentro do limite gratuito.
-            </p>
-          </div>
-
-          <div className="bg-gray-800 p-6 rounded-lg">
-            <h3 className="text-lg font-semibold text-white mb-3">
-              Como funciona o pagamento?
-            </h3>
-            <p className="text-gray-300">
-              O pagamento é processado de forma segura através do Stripe. 
-              Você será cobrado mensalmente no dia da assinatura.
-            </p>
-          </div>
-
-          <div className="bg-gray-800 p-6 rounded-lg">
-            <h3 className="text-lg font-semibold text-white mb-3">
-              Preciso de ajuda?
-            </h3>
-            <p className="text-gray-300">
-              Entre em contato conosco através do email suporte@amigsosecreto.com 
-              ou pelo chat no site. Usuários Premium têm suporte prioritário!
-            </p>
           </div>
         </div>
-      </div>
       </div>
 
       {/* Stripe Embedded Checkout Modal */}
