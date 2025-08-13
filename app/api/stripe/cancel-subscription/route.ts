@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { stripe } from '@/lib/stripe'
 import { getCurrentUser } from '@/lib/auth'
 import { createClient } from '@supabase/supabase-js'
 
-export async function POST(req: NextRequest) {
+export async function POST() {
   try {
     const user = await getCurrentUser()
     if (!user) {
