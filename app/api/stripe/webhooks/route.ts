@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { headers } from 'next/headers'
 import Stripe from 'stripe'
 import { stripe } from '@/lib/stripe'
-import { createClient } from '@/utils/supabase/server'
+import { createClient } from '@supabase/supabase-js'
 
 const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET!
 
@@ -23,7 +23,11 @@ export async function POST(req: NextRequest) {
     )
   }
 
-  const supabase = await createClient()
+  // Use service role client for webhooks (no cookies/auth needed)
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
 
   try {
     switch (event.type) {
