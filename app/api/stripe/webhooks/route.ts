@@ -71,14 +71,24 @@ export async function POST(req: NextRequest) {
 
         // Update user subscription status
         const isActive = subscription.status === 'active'
-        const currentPeriodEnd = new Date((subscription as unknown as { current_period_end: number }).current_period_end * 1000)
+        const currentPeriodEndTimestamp = subscription.current_period_end
+        console.log('Current period end timestamp:', currentPeriodEndTimestamp)
+        
+        let currentPeriodEndISO = null
+        if (currentPeriodEndTimestamp && !isNaN(currentPeriodEndTimestamp)) {
+          const currentPeriodEnd = new Date(currentPeriodEndTimestamp * 1000)
+          currentPeriodEndISO = currentPeriodEnd.toISOString()
+          console.log('Parsed date:', currentPeriodEndISO)
+        } else {
+          console.error('Invalid timestamp for current_period_end:', currentPeriodEndTimestamp)
+        }
 
         console.log('Updating user subscription:', {
           userId,
           isActive,
           subscriptionId: subscription.id,
           customerId,
-          currentPeriodEnd: currentPeriodEnd.toISOString()
+          currentPeriodEnd: currentPeriodEndISO
         })
 
         const { error: updateError } = await supabase
@@ -88,7 +98,7 @@ export async function POST(req: NextRequest) {
             stripe_subscription_id: subscription.id,
             stripe_customer_id: customerId,
             plan_started_at: isActive ? new Date().toISOString() : null,
-            plan_expires_at: isActive ? currentPeriodEnd.toISOString() : null,
+            plan_expires_at: isActive ? currentPeriodEndISO : null,
             updated_at: new Date().toISOString(),
           })
           .eq('id', userId)
