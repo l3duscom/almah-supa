@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Crown } from 'lucide-react'
@@ -32,7 +32,7 @@ export function StripeEmbeddedCheckout({ plan, isOpen, onClose }: StripeEmbedded
   const isMountedRef = useRef(false)
 
   // Cleanup function
-  const cleanupCheckout = () => {
+  const cleanupCheckout = useCallback(() => {
     if (checkout) {
       try {
         checkout.destroy()
@@ -51,7 +51,7 @@ export function StripeEmbeddedCheckout({ plan, isOpen, onClose }: StripeEmbedded
     setIsInitialized(false)
     setError(null)
     setLoading(false)
-  }
+  }, [checkout])
 
   useEffect(() => {
     if (!isOpen || !plan) {
@@ -144,8 +144,13 @@ export function StripeEmbeddedCheckout({ plan, isOpen, onClose }: StripeEmbedded
           if (checkoutElementRef.current && isOpen && !isMountedRef.current) {
             // Clear any existing content
             checkoutElementRef.current.innerHTML = ''
+            
+            // Add a unique ID to the element for Stripe to mount on
+            const elementId = 'embedded-checkout-' + Date.now()
+            checkoutElementRef.current.id = elementId
+            
             try {
-              embeddedCheckout.mount(checkoutElementRef.current)
+              embeddedCheckout.mount('#' + elementId)
               isMountedRef.current = true
             } catch (mountError) {
               console.warn('Failed to mount checkout:', mountError)
@@ -178,7 +183,7 @@ export function StripeEmbeddedCheckout({ plan, isOpen, onClose }: StripeEmbedded
 
     // Cleanup on unmount
     return cleanupCheckout
-  }, [isOpen, plan, isInitialized])
+  }, [isOpen, plan, isInitialized, cleanupCheckout])
 
   const handleClose = () => {
     cleanupCheckout()
@@ -197,7 +202,7 @@ export function StripeEmbeddedCheckout({ plan, isOpen, onClose }: StripeEmbedded
       <DialogContent 
         className="max-w-4xl max-h-[90vh] flex flex-col p-0"
         onPointerDownOutside={(e) => e.preventDefault()}
-        onEscapeKeyDown={(e) => !loading && handleClose()}
+        onEscapeKeyDown={() => !loading && handleClose()}
       >
         <DialogHeader className="p-6 pb-4">
           <DialogTitle className="flex items-center gap-2">
