@@ -157,27 +157,27 @@ export function StripeEmbeddedCheckout({ plan, isOpen, onClose }: StripeEmbedded
       }
     }}>
       <DialogContent 
-        className="max-w-4xl max-h-[90vh] flex flex-col p-0"
+        className="max-w-2xl max-h-[90vh] flex flex-col p-0 bg-white"
         onPointerDownOutside={(e) => e.preventDefault()}
         onEscapeKeyDown={() => !loading && handleClose()}
       >
-        <DialogHeader className="p-6 pb-4">
-          <DialogTitle className="flex items-center gap-2">
-            <Crown className="w-5 h-5 text-yellow-400" />
+        <DialogHeader className="p-6 pb-4 bg-white border-b border-gray-200">
+          <DialogTitle className="flex items-center gap-2 text-gray-900">
+            <Crown className="w-5 h-5 text-yellow-500" />
             Assinar {plan.name}
           </DialogTitle>
         </DialogHeader>
 
-        <div className="flex-1 overflow-auto px-6 pb-6">
+        <div className="flex-1 overflow-auto bg-white">
           {loading && (
-            <div className="flex items-center justify-center h-64">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-yellow-400"></div>
-              <span className="ml-2">Carregando checkout...</span>
+            <div className="flex items-center justify-center h-64 bg-white">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-600"></div>
+              <span className="ml-2 text-gray-700">Carregando checkout...</span>
             </div>
           )}
 
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mx-6 mb-4">
               {error}
               <Button 
                 onClick={() => window.location.reload()} 
@@ -191,7 +191,7 @@ export function StripeEmbeddedCheckout({ plan, isOpen, onClose }: StripeEmbedded
           )}
 
           {/* Stripe embedded checkout will be mounted here */}
-          <div id="stripe-checkout-container" className="min-h-[500px] w-full"></div>
+          <div id="stripe-checkout-container" className="min-h-[400px] w-full bg-white"></div>
         </div>
       </DialogContent>
     </Dialog>
