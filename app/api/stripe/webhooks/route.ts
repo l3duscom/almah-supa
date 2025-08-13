@@ -114,17 +114,23 @@ export async function POST(req: NextRequest) {
 
       case 'customer.subscription.deleted': {
         const subscription = event.data.object as Stripe.Subscription
+        console.log('Processing subscription deletion:', subscription.id)
         
         // Get user by subscription ID
-        const { data: user } = await supabase
+        const { data: user, error: userError } = await supabase
           .from('users')
           .select('id')
           .eq('stripe_subscription_id', subscription.id)
           .single()
 
+        if (userError) {
+          console.error('Error finding user for deleted subscription:', userError)
+          break
+        }
+
         if (user) {
           // Downgrade user to free plan
-          await supabase
+          const { error: updateError } = await supabase
             .from('users')
             .update({
               plan: 'free',
@@ -135,7 +141,14 @@ export async function POST(req: NextRequest) {
             })
             .eq('id', user.id)
 
-          console.log(`Subscription canceled for user ${user.id}`)
+          if (updateError) {
+            console.error('Error downgrading user to free plan:', updateError)
+            return NextResponse.json({ error: 'Failed to downgrade user' }, { status: 500 })
+          }
+
+          console.log(`Subscription canceled and user ${user.id} downgraded to free plan`)
+        } else {
+          console.warn('No user found for deleted subscription:', subscription.id)
         }
         break
       }

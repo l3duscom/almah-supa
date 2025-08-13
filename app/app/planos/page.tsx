@@ -25,6 +25,7 @@ import { Button } from '@/components/ui/button'
 import { Crown, Users } from 'lucide-react'
 import { PricingCard } from '@/components/pricing-card'
 import { StripeEmbeddedCheckout } from '@/components/stripe-embedded-checkout'
+import { CancelSubscriptionModal } from '@/components/cancel-subscription-modal'
 import Link from 'next/link'
 import Script from 'next/script'
 
@@ -43,6 +44,7 @@ export default function PlanosPage() {
   const [loading, setLoading] = useState(true)
   const [selectedPlan, setSelectedPlan] = useState<PricingPlan | null>(null)
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false)
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false)
 
   useEffect(() => {
     const loadData = async () => {
@@ -101,6 +103,28 @@ export default function PlanosPage() {
   const handleCheckoutClose = () => {
     setIsCheckoutOpen(false)
     setSelectedPlan(null)
+  }
+
+  const handleCancelSubscription = async () => {
+    try {
+      const response = await fetch('/api/stripe/cancel-subscription', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+
+      if (!response.ok) {
+        throw new Error('Erro ao cancelar assinatura')
+      }
+
+      // Refresh the page data to show updated subscription status
+      window.location.reload()
+
+    } catch (error) {
+      console.error('Error canceling subscription:', error)
+      alert('Erro ao cancelar assinatura. Tente novamente.')
+    }
   }
 
   if (loading) {
@@ -169,11 +193,18 @@ export default function PlanosPage() {
               </p>
             )}
           </div>
-          {currentPlan === 'free' && (
+          {currentPlan === 'free' ? (
             <Button asChild>
               <Link href="#upgrade">Fazer Upgrade</Link>
             </Button>
-          )}
+          ) : isActive ? (
+            <Button 
+              variant="outline"
+              onClick={() => setIsCancelModalOpen(true)}
+            >
+              Cancelar Assinatura
+            </Button>
+          ) : null}
         </div>
       </div>
 
@@ -339,6 +370,13 @@ export default function PlanosPage() {
         plan={selectedPlan}
         isOpen={isCheckoutOpen}
         onClose={handleCheckoutClose}
+      />
+
+      {/* Cancel Subscription Modal */}
+      <CancelSubscriptionModal 
+        isOpen={isCancelModalOpen}
+        onClose={() => setIsCancelModalOpen(false)}
+        onConfirm={handleCancelSubscription}
       />
     </>
   )
