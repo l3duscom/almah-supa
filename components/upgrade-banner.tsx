@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
-import { Crown, X, Sparkles, Users, Mail, Zap, Timer, TrendingUp } from 'lucide-react'
+import { Crown, X, Sparkles, Users, Mail, Zap } from 'lucide-react'
 import Link from 'next/link'
 
 interface UpgradeBannerProps {
@@ -13,11 +13,6 @@ interface UpgradeBannerProps {
 export default function UpgradeBanner({ groupCount = 0, plan }: UpgradeBannerProps) {
   const [isVisible, setIsVisible] = useState(true)
   const [showPulse, setShowPulse] = useState(false)
-
-  // Don't show for premium users
-  if (plan === 'premium' || !isVisible) {
-    return null
-  }
 
   const groupsRemaining = Math.max(0, 3 - groupCount)
   const isNearLimit = groupCount >= 2
@@ -32,6 +27,11 @@ export default function UpgradeBanner({ groupCount = 0, plan }: UpgradeBannerPro
       return () => clearInterval(interval)
     }
   }, [isNearLimit])
+
+  // Don't show for premium users
+  if (plan === 'premium' || !isVisible) {
+    return null
+  }
   
   // Get message based on user status
   const getMessage = () => {

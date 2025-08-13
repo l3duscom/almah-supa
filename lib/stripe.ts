@@ -1,7 +1,7 @@
 import Stripe from 'stripe'
 
 export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2024-11-20.acacia',
+  apiVersion: '2025-07-30.basil',
   typescript: true,
 })
 
@@ -21,7 +21,7 @@ export const formatAmountForDisplay = (
   amount: number,
   currency: string
 ): string => {
-  let numberFormat = new Intl.NumberFormat(['pt-BR'], {
+  const numberFormat = new Intl.NumberFormat(['pt-BR'], {
     style: 'currency',
     currency: currency,
     currencyDisplay: 'symbol',
@@ -33,14 +33,14 @@ export const formatAmountForStripe = (
   amount: number,
   currency: string
 ): number => {
-  let numberFormat = new Intl.NumberFormat(['pt-BR'], {
+  const numberFormat = new Intl.NumberFormat(['pt-BR'], {
     style: 'currency',
     currency: currency,
     currencyDisplay: 'symbol',
   })
   const parts = numberFormat.formatToParts(amount)
   let zeroDecimalCurrency: boolean = true
-  for (let part of parts) {
+  for (const part of parts) {
     if (part.type === 'decimal') {
       zeroDecimalCurrency = false
     }

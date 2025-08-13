@@ -127,7 +127,14 @@ export async function isSubscriptionActive(userId: string): Promise<boolean> {
 export async function upgradeUserToPremium(userId: string, stripeCustomerId?: string, stripeSubscriptionId?: string): Promise<void> {
   const supabase = await createClient()
   
-  const updateData: any = {
+  const updateData: {
+    plan: string;
+    plan_started_at: string;
+    plan_expires_at: string;
+    updated_at: string;
+    stripe_customer_id?: string;
+    stripe_subscription_id?: string;
+  } = {
     plan: 'premium',
     plan_started_at: new Date().toISOString(),
     // Set expiry to 1 month from now (adjust based on your billing cycle)

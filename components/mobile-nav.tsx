@@ -7,7 +7,13 @@ import Link from "next/link";
 import { signOut } from "@/app/logout/actions";
 
 interface MobileNavProps {
-  user: any;
+  user: {
+    id: string;
+    email?: string;
+    name?: string;
+    role?: string;
+    plan?: string;
+  } | null;
   isSuperAdmin: boolean;
   isPremium: boolean;
 }

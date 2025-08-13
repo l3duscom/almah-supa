@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Gift, UsersRound, Terminal, LogOut, Crown, CreditCard, Menu, X } from "lucide-react";
+import { Gift, UsersRound, Terminal, LogOut, Crown, CreditCard } from "lucide-react";
 import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth";
 import { signOut } from "@/app/logout/actions";

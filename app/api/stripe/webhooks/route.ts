@@ -8,15 +8,15 @@ const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET!
 
 export async function POST(req: NextRequest) {
   const body = await req.text()
-  const headersList = headers()
+  const headersList = await headers()
   const sig = headersList.get('stripe-signature')!
 
   let event: Stripe.Event
 
   try {
     event = stripe.webhooks.constructEvent(body, sig, endpointSecret)
-  } catch (err: any) {
-    console.error(`Webhook signature verification failed.`, err.message)
+  } catch (err: unknown) {
+    console.error(`Webhook signature verification failed.`, (err as Error).message)
     return NextResponse.json(
       { error: 'Webhook signature verification failed' },
       { status: 400 }
@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
 
         // Update user subscription status
         const isActive = subscription.status === 'active'
-        const currentPeriodEnd = new Date(subscription.current_period_end * 1000)
+        const currentPeriodEnd = new Date((subscription as unknown as { current_period_end: number }).current_period_end * 1000)
 
         await supabase
           .from('users')
@@ -102,10 +102,10 @@ export async function POST(req: NextRequest) {
       case 'invoice.payment_succeeded': {
         const invoice = event.data.object as Stripe.Invoice
         
-        if (invoice.subscription) {
+        if ((invoice as unknown as { subscription: string }).subscription) {
           // Get subscription to update user
           const subscription = await stripe.subscriptions.retrieve(
-            invoice.subscription as string
+            (invoice as unknown as { subscription: string }).subscription
           )
           
           const { data: user } = await supabase
@@ -116,7 +116,7 @@ export async function POST(req: NextRequest) {
 
           if (user) {
             // Extend subscription period
-            const currentPeriodEnd = new Date(subscription.current_period_end * 1000)
+            const currentPeriodEnd = new Date((subscription as unknown as { current_period_end: number }).current_period_end * 1000)
             
             await supabase
               .from('users')
@@ -136,11 +136,11 @@ export async function POST(req: NextRequest) {
       case 'invoice.payment_failed': {
         const invoice = event.data.object as Stripe.Invoice
         
-        if (invoice.subscription) {
+        if ((invoice as unknown as { subscription: string }).subscription) {
           const { data: user } = await supabase
             .from('users')
             .select('id')
-            .eq('stripe_subscription_id', invoice.subscription as string)
+            .eq('stripe_subscription_id', (invoice as unknown as { subscription: string }).subscription)
             .single()
 
           if (user) {
@@ -156,7 +156,7 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json({ received: true })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Webhook handler error:', error)
     return NextResponse.json(
       { error: 'Webhook handler failed' },

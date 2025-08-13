@@ -8,7 +8,7 @@ export default async function DebugPage() {
   // Get user from database directly
   let dbUser = null
   if (user?.id) {
-    const { data, error } = await supabase
+    const { data } = await supabase
       .from('users')
       .select('*')
       .eq('id', user.id)

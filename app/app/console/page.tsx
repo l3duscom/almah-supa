@@ -1,4 +1,4 @@
-import { requireSuperAdmin, getCurrentUser } from '@/lib/auth'
+import { requireSuperAdmin } from '@/lib/auth'
 import { createClient } from '@/utils/supabase/server'
 
 export default async function ConsolePage() {

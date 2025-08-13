@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { Crown } from 'lucide-react'
 
 interface StripeCheckoutButtonProps {
   priceId: string
@@ -44,7 +43,7 @@ export default function StripeCheckoutButton({
       }
 
       // Redirect to Stripe Checkout
-      const stripe = (window as any).Stripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY)
+      const stripe = (window as unknown as { Stripe: (key: string) => { redirectToCheckout: (options: { sessionId: string }) => Promise<{ error?: Error }> } }).Stripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
       const { error: stripeError } = await stripe.redirectToCheckout({
         sessionId: sessionId,
       })

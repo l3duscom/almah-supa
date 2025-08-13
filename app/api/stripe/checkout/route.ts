@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
     const supabase = await createClient()
 
     // Get or create Stripe customer
-    let customerId = user.stripe_customer_id
+    let customerId = (user as { stripe_customer_id?: string }).stripe_customer_id
 
     if (!customerId) {
       // Create new Stripe customer
@@ -69,10 +69,10 @@ export async function POST(req: NextRequest) {
     })
 
     return NextResponse.json({ sessionId: session.id })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Stripe checkout error:', error)
     return NextResponse.json(
-      { error: error.message || 'Internal server error' },
+      { error: (error as Error).message || 'Internal server error' },
       { status: 500 }
     )
   }
