@@ -71,7 +71,7 @@ export async function POST(req: NextRequest) {
 
         // Update user subscription status
         const isActive = subscription.status === 'active'
-        const currentPeriodEndTimestamp = subscription.current_period_end
+        const currentPeriodEndTimestamp = (subscription as any).current_period_end
         console.log('Current period end timestamp:', currentPeriodEndTimestamp)
         
         let currentPeriodEndISO = null
