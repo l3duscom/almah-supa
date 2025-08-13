@@ -3,7 +3,6 @@
 import { Check, Crown } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import StripeCheckoutButton from '@/components/stripe-checkout-button'
 import { PricingPlan, formatPrice, getBillingPeriodLabel, calculateMonthlyEquivalent } from '@/lib/pricing-client'
 
 interface PricingCardProps {
@@ -11,13 +10,15 @@ interface PricingCardProps {
   isRecommended?: boolean
   isCurrentPlan?: boolean
   disabled?: boolean
+  onSubscribe?: (plan: PricingPlan) => void
 }
 
 export function PricingCard({ 
   plan, 
   isRecommended = false, 
   isCurrentPlan = false,
-  disabled = false
+  disabled = false,
+  onSubscribe
 }: PricingCardProps) {
   const monthlyEquivalent = calculateMonthlyEquivalent(plan.price_cents, plan.billing_period)
   const isAnnual = plan.billing_period === 'annual'
@@ -83,14 +84,14 @@ export function PricingCard({
           Plano Atual
         </Button>
       ) : (
-        <StripeCheckoutButton 
-          priceId={plan.stripe_price_id}
+        <Button 
+          onClick={() => onSubscribe?.(plan)}
           className="w-full bg-yellow-400 text-black hover:bg-yellow-500"
           disabled={disabled}
         >
           <Crown className="w-4 h-4 mr-2" />
           Assinar {plan.name}
-        </StripeCheckoutButton>
+        </Button>
       )}
     </div>
   )

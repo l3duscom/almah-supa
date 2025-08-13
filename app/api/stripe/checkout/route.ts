@@ -46,8 +46,9 @@ export async function POST(req: NextRequest) {
         .eq('id', user.id)
     }
 
-    // Create checkout session
+    // Create embedded checkout session
     const session = await stripe.checkout.sessions.create({
+      ui_mode: 'embedded',
       customer: customerId,
       payment_method_types: ['card'],
       billing_address_collection: 'required',
@@ -64,11 +65,13 @@ export async function POST(req: NextRequest) {
           supabase_user_id: user.id,
         },
       },
-      success_url: `${req.headers.get('origin')}/app/planos?success=true`,
-      cancel_url: `${req.headers.get('origin')}/app/planos?canceled=true`,
+      return_url: `${req.headers.get('origin')}/app/planos?session_id={CHECKOUT_SESSION_ID}`,
     })
 
-    return NextResponse.json({ sessionId: session.id })
+    return NextResponse.json({ 
+      sessionId: session.id,
+      clientSecret: session.client_secret 
+    })
   } catch (error: unknown) {
     console.error('Stripe checkout error:', error)
     return NextResponse.json(

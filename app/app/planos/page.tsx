@@ -1,24 +1,93 @@
+'use client'
+
+import { useEffect, useState } from 'react'
 import { requireAuth } from '@/lib/auth'
 import { getUserSubscription, getPlanDisplayName, getPlanFeatures } from '@/lib/subscription'
-import { createClient } from '@/utils/supabase/server'
-import { getPricingPlans } from '@/lib/pricing'
+import { createClient } from '@/utils/supabase/client'
+import { PricingPlan } from '@/lib/pricing-client'
 import { Button } from '@/components/ui/button'
 import { Crown, Users } from 'lucide-react'
 import { PricingCard } from '@/components/pricing-card'
+import { StripeEmbeddedCheckout } from '@/components/stripe-embedded-checkout'
 import Link from 'next/link'
 import Script from 'next/script'
 
-export default async function PlanosPage() {
-  const user = await requireAuth()
-  const subscription = await getUserSubscription(user.id)
-  const supabase = await createClient()
-  const pricingPlans = await getPricingPlans()
+export default function PlanosPage() {
+  const [user, setUser] = useState<any>(null)
+  const [subscription, setSubscription] = useState<any>(null)
+  const [pricingPlans, setPricingPlans] = useState<PricingPlan[]>([])
+  const [groupCount, setGroupCount] = useState<number>(0)
+  const [loading, setLoading] = useState(true)
+  const [selectedPlan, setSelectedPlan] = useState<PricingPlan | null>(null)
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false)
 
-  // Get current user's group count
-  const { count: groupCount } = await supabase
-    .from('groups')
-    .select('*', { count: 'exact', head: true })
-    .eq('owner_id', user.id)
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const supabase = createClient()
+        
+        // Get current user
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) {
+          window.location.href = '/login'
+          return
+        }
+        setUser(user)
+
+        // Get user subscription
+        const { data: userProfile } = await supabase
+          .from('users')
+          .select('plan, plan_expires_at, stripe_customer_id, stripe_subscription_id')
+          .eq('id', user.id)
+          .single()
+        
+        setSubscription(userProfile)
+
+        // Get pricing plans
+        const { data: plans } = await supabase
+          .from('pricing_plans')
+          .select('*')
+          .eq('is_active', true)
+          .order('sort_order', { ascending: true })
+        
+        setPricingPlans(plans || [])
+
+        // Get current user's group count
+        const { count } = await supabase
+          .from('groups')
+          .select('*', { count: 'exact', head: true })
+          .eq('owner_id', user.id)
+        
+        setGroupCount(count || 0)
+
+      } catch (error) {
+        console.error('Error loading data:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadData()
+  }, [])
+
+  const handleSubscribe = (plan: PricingPlan) => {
+    setSelectedPlan(plan)
+    setIsCheckoutOpen(true)
+  }
+
+  const handleCheckoutClose = () => {
+    setIsCheckoutOpen(false)
+    setSelectedPlan(null)
+  }
+
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-8 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-yellow-400"></div>
+        <span className="ml-2">Carregando...</span>
+      </div>
+    )
+  }
 
   const currentPlan = subscription?.plan || 'free'
   const isActive = subscription?.plan_expires_at 
@@ -132,6 +201,7 @@ export default async function PlanosPage() {
                   key={plan.id}
                   plan={plan}
                   isCurrentPlan={currentPlan === 'premium' && isActive}
+                  onSubscribe={handleSubscribe}
                 />
               ))}
             </div>
@@ -148,6 +218,7 @@ export default async function PlanosPage() {
                   key={plan.id}
                   plan={plan}
                   isCurrentPlan={currentPlan === 'premium' && isActive}
+                  onSubscribe={handleSubscribe}
                 />
               ))}
             </div>
@@ -165,6 +236,7 @@ export default async function PlanosPage() {
                   plan={plan}
                   isRecommended={true}
                   isCurrentPlan={currentPlan === 'premium' && isActive}
+                  onSubscribe={handleSubscribe}
                 />
               ))}
             </div>
@@ -182,6 +254,7 @@ export default async function PlanosPage() {
                   plan={plan}
                   isRecommended={true}
                   isCurrentPlan={currentPlan === 'premium' && isActive}
+                  onSubscribe={handleSubscribe}
                 />
               ))}
             </div>
@@ -237,6 +310,13 @@ export default async function PlanosPage() {
         </div>
       </div>
       </div>
+
+      {/* Stripe Embedded Checkout Modal */}
+      <StripeEmbeddedCheckout 
+        plan={selectedPlan}
+        isOpen={isCheckoutOpen}
+        onClose={handleCheckoutClose}
+      />
     </>
   )
 }
