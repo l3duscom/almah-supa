@@ -34,38 +34,21 @@ export async function login(previousState: LoginState, formData: FormData) {
 }
 
 export async function signInWithGoogle() {
-  console.log("🚀 Starting Google OAuth sign in");
-  console.log("Redirect URL:", `${process.env.NEXT_PUBLIC_URL}/auth/confirm`);
-  
   const supabase = await createClient();
 
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
+      // With new API Keys we use PKCE; callback will hit /auth/confirm which exchanges code
       redirectTo: `${process.env.NEXT_PUBLIC_URL}/auth/confirm`,
     },
   });
 
-  console.log("📊 OAuth initiation result:");
-  console.log("- Error:", error);
-  console.log("- Data URL exists:", !!data?.url);
-  
-  if (data?.url) {
-    console.log("- OAuth URL:", data.url.substring(0, 50) + "...");
-  }
-
-  if (error) {
-    console.error("❌ Google OAuth error:", error);
+  if (error || !data?.url) {
     redirect("/login?message=Could not authenticate user");
   }
 
-  if (data?.url) {
-    console.log("✅ Redirecting to Google OAuth URL");
-    redirect(data.url);
-  }
-  
-  console.error("❌ No OAuth URL received");
-  redirect("/login?message=Could not authenticate user");
+  redirect(data.url);
 }
 
 export async function signInWithApple() {

@@ -8,6 +8,13 @@ export async function createClient() {
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
+      auth: {
+        // Enable PKCE on the server so exchangeCodeForSession works with the new API Keys
+        flowType: "pkce",
+        autoRefreshToken: true,
+        persistSession: true,
+        detectSessionInUrl: false,
+      },
       cookies: {
         getAll() {
           return cookieStore.getAll();

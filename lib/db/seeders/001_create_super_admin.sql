@@ -14,7 +14,7 @@ BEGIN
     
     -- Only create super admin if none exists
     IF NOT super_admin_exists THEN
-        -- Insert super admin user directly into users table
+        -- Display instructions for manual creation
         -- Note: In production, you should create this user through Supabase Auth
         -- and then update their role, or use Supabase Auth Admin API
         
@@ -25,8 +25,9 @@ BEGIN
         RAISE NOTICE 'UPDATE public.users SET role = ''super_admin'' WHERE email = ''%'';', super_admin_email;
         
         -- Do NOT create placeholder users directly in public.users
-        -- The users table has foreign key constraint to auth.users
-        -- Users must be created through Supabase Auth first
+        -- The users table has foreign key constraint to auth.users(id)
+        -- Users must be created through Supabase Auth first, then the trigger
+        -- will automatically create the corresponding record in public.users
         
         RAISE NOTICE 'Super admin setup complete. Follow the instructions above.';
         

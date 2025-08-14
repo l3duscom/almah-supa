@@ -23,29 +23,38 @@ export async function GET(request: NextRequest) {
 
   // Handle OAuth callback (Google, etc.)
   if (code) {
-    console.log("🔄 Processing OAuth callback with code:", code.substring(0, 10) + "...");
-    
+    console.log(
+      "🔄 Processing OAuth callback with code:",
+      code.substring(0, 10) + "..."
+    );
+
     try {
       const { data, error } = await supabase.auth.exchangeCodeForSession(code);
-      
+
       console.log("📊 OAuth exchange result:");
       console.log("- Error:", error);
       console.log("- Session exists:", !!data.session);
       console.log("- User exists:", !!data.user);
-      
+
       if (data.user) {
         console.log("👤 User info:");
         console.log("- ID:", data.user.id);
         console.log("- Email:", data.user.email);
         console.log("- Created:", data.user.created_at);
       }
-      
+
       if (!error && data.session) {
-        console.log("✅ OAuth session exchange successful, redirecting to:", next);
+        console.log(
+          "✅ OAuth session exchange successful, redirecting to:",
+          next
+        );
         redirect(next);
       } else {
         console.error("❌ OAuth session exchange failed:", error);
-        redirect("/login?message=OAuth exchange failed: " + (error?.message || "Unknown error"));
+        redirect(
+          "/login?message=OAuth exchange failed: " +
+            (error?.message || "Unknown error")
+        );
       }
     } catch (exchangeError) {
       console.error("💥 Exception during OAuth exchange:", exchangeError);
@@ -56,22 +65,30 @@ export async function GET(request: NextRequest) {
   // Handle email OTP (magic link)
   if (token_hash && type) {
     console.log("📧 Processing email OTP with type:", type);
-    const { data, error } = await supabase.auth.verifyOtp({
+    const { error } = await supabase.auth.verifyOtp({
       type,
       token_hash,
     });
-    
+
     if (!error) {
-      console.log("✅ Email OTP verification successful, redirecting to:", next);
+      console.log(
+        "✅ Email OTP verification successful, redirecting to:",
+        next
+      );
       redirect(next);
     } else {
       console.error("❌ Email OTP verification failed:", error);
-      redirect("/login?message=Email verification failed: " + (error?.message || "Unknown error"));
+      redirect(
+        "/login?message=Email verification failed: " +
+          (error?.message || "Unknown error")
+      );
     }
   }
 
   // If we get here, something went wrong
-  console.error("❌ Authentication failed - no valid code or token_hash/type provided");
+  console.error(
+    "❌ Authentication failed - no valid code or token_hash/type provided"
+  );
   console.log("Available params:", Object.fromEntries(searchParams.entries()));
   redirect("/login?message=No valid authentication parameters provided");
 }
