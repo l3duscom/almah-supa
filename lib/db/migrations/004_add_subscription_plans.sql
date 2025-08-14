@@ -33,14 +33,27 @@ ON CONFLICT (plan) DO UPDATE SET
 -- Enable RLS on subscription_limits
 ALTER TABLE public.subscription_limits ENABLE ROW LEVEL SECURITY;
 
--- Create policy for subscription_limits (read-only for all authenticated users)
-CREATE POLICY "Users can view subscription limits" ON public.subscription_limits
-  FOR SELECT USING (auth.role() = 'authenticated');
+-- Create policies only if they don't exist
+DO $$
+BEGIN
+    -- Drop existing policies if they exist
+    IF EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'subscription_limits' AND policyname = 'Users can view subscription limits') THEN
+        DROP POLICY "Users can view subscription limits" ON public.subscription_limits;
+    END IF;
+    
+    IF EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'subscription_limits' AND policyname = 'Super admins can manage subscription limits') THEN
+        DROP POLICY "Super admins can manage subscription limits" ON public.subscription_limits;
+    END IF;
+    
+    -- Create policies
+    CREATE POLICY "Users can view subscription limits" ON public.subscription_limits
+      FOR SELECT USING (auth.role() = 'authenticated');
 
--- Super admins can manage subscription limits
-CREATE POLICY "Super admins can manage subscription limits" ON public.subscription_limits
-  FOR ALL USING (
-    (auth.jwt() ->> 'role')::text = 'service_role'
-    OR
-    auth.email() IN ('ledusdigital@gmail.com', 'admin@almah-supa.com')
-  );
+    CREATE POLICY "Super admins can manage subscription limits" ON public.subscription_limits
+      FOR ALL USING (
+        (auth.jwt() ->> 'role')::text = 'service_role'
+        OR
+        auth.email() IN ('ledusdigital@gmail.com', 'admin@almah-supa.com')
+      );
+END
+$$;

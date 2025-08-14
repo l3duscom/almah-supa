@@ -22,6 +22,11 @@ npm run db:setup
 
 # Run migrations (if available)
 npm run db:migrate
+
+# Reset database (development only)
+# WARNING: This deletes ALL data and tables
+# Run the reset script in Supabase SQL Editor:
+# lib/db/reset_database.sql
 ```
 
 ## Architecture Overview

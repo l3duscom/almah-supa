@@ -24,16 +24,11 @@ BEGIN
         RAISE NOTICE '3. Run the following SQL after user creation:';
         RAISE NOTICE 'UPDATE public.users SET role = ''super_admin'' WHERE email = ''%'';', super_admin_email;
         
-        -- Alternative: Create a placeholder that will be updated when user signs up
-        -- This ensures the system knows what email should become super admin
-        INSERT INTO public.users (id, email, name, role, created_at)
-        VALUES (
-            gen_random_uuid(), -- This will be replaced when real user signs up
-            super_admin_email,
-            'Super Admin',
-            'super_admin',
-            NOW()
-        ) ON CONFLICT (email) DO NOTHING;
+        -- Do NOT create placeholder users directly in public.users
+        -- The users table has foreign key constraint to auth.users
+        -- Users must be created through Supabase Auth first
+        
+        RAISE NOTICE 'Super admin setup complete. Follow the instructions above.';
         
     ELSE
         RAISE NOTICE 'Super admin already exists, skipping creation.';

@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Gift, UsersRound, Terminal, LogOut, Crown, CreditCard, User } from "lucide-react";
+import { Gift, UsersRound, Terminal, LogOut, Crown, CreditCard } from "lucide-react";
 import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth";
 import { signOut } from "@/app/logout/actions";
@@ -34,13 +34,6 @@ export default async function Header() {
               Meu grupos
             </Link>
 
-            <Link
-              href="/app/perfil"
-              className="text-foreground text-sm flex gap-2 items-center hover:text-gray-300"
-            >
-              <User className="w-4 h-4" />
-              Perfil
-            </Link>
 
             <Link
               href="/app/planos"

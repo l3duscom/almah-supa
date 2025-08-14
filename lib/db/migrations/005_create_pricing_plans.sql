@@ -26,7 +26,10 @@ CREATE INDEX IF NOT EXISTS idx_pricing_plans_sort_order ON public.pricing_plans(
 -- Enable RLS
 ALTER TABLE public.pricing_plans ENABLE ROW LEVEL SECURITY;
 
--- RLS Policies
+-- RLS Policies - Drop and recreate to avoid conflicts
+DROP POLICY IF EXISTS "Pricing plans are viewable by everyone" ON public.pricing_plans;
+DROP POLICY IF EXISTS "Only super admins can manage pricing plans" ON public.pricing_plans;
+
 CREATE POLICY "Pricing plans are viewable by everyone" ON public.pricing_plans
   FOR SELECT USING (is_active = true);
 
