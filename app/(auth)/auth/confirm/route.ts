@@ -1,8 +1,7 @@
 import { type EmailOtpType } from "@supabase/supabase-js";
-import { type NextRequest } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 
 import { createClient } from "@/utils/supabase/server";
-import { redirect } from "next/navigation";
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -48,12 +47,16 @@ export async function GET(request: NextRequest) {
           "✅ OAuth session exchange successful, redirecting to:",
           next
         );
-        redirect(next);
+        return NextResponse.redirect(new URL(next, request.url));
       } else {
         console.error("❌ OAuth session exchange failed:", error);
-        redirect(
-          "/login?message=OAuth exchange failed: " +
-            (error?.message || "Unknown error")
+        return NextResponse.redirect(
+          new URL(
+            `/login?message=OAuth exchange failed: ${
+              error?.message || "Unknown error"
+            }`,
+            request.url
+          )
         );
       }
     } catch (exchangeError) {
@@ -63,9 +66,13 @@ export async function GET(request: NextRequest) {
         "Full error details:",
         JSON.stringify(exchangeError, null, 2)
       );
-      redirect(
-        "/login?message=OAuth exchange exception: " +
-          (exchangeError as Error).message
+      return NextResponse.redirect(
+        new URL(
+          `/login?message=OAuth exchange exception: ${
+            (exchangeError as Error).message
+          }`,
+          request.url
+        )
       );
     }
   }
@@ -83,12 +90,16 @@ export async function GET(request: NextRequest) {
         "✅ Email OTP verification successful, redirecting to:",
         next
       );
-      redirect(next);
+      return NextResponse.redirect(new URL(next, request.url));
     } else {
       console.error("❌ Email OTP verification failed:", error);
-      redirect(
-        "/login?message=Email verification failed: " +
-          (error?.message || "Unknown error")
+      return NextResponse.redirect(
+        new URL(
+          `/login?message=Email verification failed: ${
+            error?.message || "Unknown error"
+          }`,
+          request.url
+        )
       );
     }
   }
@@ -98,5 +109,10 @@ export async function GET(request: NextRequest) {
     "❌ Authentication failed - no valid code or token_hash/type provided"
   );
   console.log("Available params:", Object.fromEntries(searchParams.entries()));
-  redirect("/login?message=No valid authentication parameters provided");
+  return NextResponse.redirect(
+    new URL(
+      "/login?message=No valid authentication parameters provided",
+      request.url
+    )
+  );
 }
