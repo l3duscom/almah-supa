@@ -14,14 +14,14 @@ export async function updateSession(request: NextRequest) {
         flowType: "pkce",
         autoRefreshToken: true,
         persistSession: true,
-        detectSessionInUrl: false,
+        detectSessionInUrl: true,
       },
       cookies: {
         getAll() {
           return request.cookies.getAll();
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) =>
+          cookiesToSet.forEach(({ name, value }) =>
             request.cookies.set(name, value)
           );
           supabaseResponse = NextResponse.next({

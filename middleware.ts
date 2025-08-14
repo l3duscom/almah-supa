@@ -3,10 +3,10 @@ import { updateSession } from "@/utils/supabase/middleware";
 
 export async function middleware(request: NextRequest) {
   // Skip authentication for Stripe webhooks
-  if (request.nextUrl.pathname.startsWith('/api/stripe/webhooks')) {
+  if (request.nextUrl.pathname.startsWith("/api/stripe/webhooks")) {
     return;
   }
-  
+
   return await updateSession(request);
 }
 
@@ -18,8 +18,9 @@ export const config = {
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
      * - api/stripe/ (all Stripe API routes)
+     * - auth/confirm (auth confirmation route)
      * Feel free to modify this pattern to include more paths.
      */
-    "/((?!_next/static|_next/image|favicon.ico|api/stripe/|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|api/stripe/|auth/confirm|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };
