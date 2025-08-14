@@ -13,6 +13,11 @@ export async function login(previousState: LoginState, formData: FormData) {
 
   const email = formData.get("email") as string;
 
+  console.log("=== MAGIC LINK DEBUG ===");
+  console.log("Email:", email);
+  console.log("Redirect URL:", `${process.env.NEXT_PUBLIC_URL}/auth/confirm`);
+  console.log("Supabase URL:", process.env.NEXT_PUBLIC_SUPABASE_URL);
+
   const { error } = await supabase.auth.signInWithOtp({
     email,
     options: {
@@ -20,13 +25,18 @@ export async function login(previousState: LoginState, formData: FormData) {
     },
   });
 
+  console.log("Supabase signInWithOtp result:");
+  console.log("- Error:", error);
+
   if (error) {
+    console.log("❌ Magic link failed:", error.message);
     return {
       success: false,
       message: error.message,
     };
   }
 
+  console.log("✅ Magic link sent successfully");
   return {
     success: true,
     message: "Email enviado!",
