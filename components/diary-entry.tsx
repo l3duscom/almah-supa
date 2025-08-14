@@ -59,7 +59,7 @@ export default function DiaryEntry({ entry, canEdit }: DiaryEntryProps) {
       } else {
         toast.error(result.message);
       }
-    } catch (error) {
+    } catch {
       toast.error("Erro ao salvar");
     } finally {
       setIsLoading(false);
@@ -75,7 +75,7 @@ export default function DiaryEntry({ entry, canEdit }: DiaryEntryProps) {
       } else {
         toast.error(result.message);
       }
-    } catch (error) {
+    } catch {
       toast.error("Erro ao excluir");
     } finally {
       setIsLoading(false);

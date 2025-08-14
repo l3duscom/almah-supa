@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useActionState } from "react";
+import { useState, useActionState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,8 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { addDiaryEntry, DiaryActionState } from "@/app/app/diario/actions";
 import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
-import { Heart, Sparkles, Plus, Calendar, Trash2, Edit3 } from "lucide-react";
+import { Heart, Sparkles, Plus, Calendar, Edit3 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import MoodSelector from "./mood-selector";
 import DiaryEntry from "./diary-entry";
@@ -25,7 +24,6 @@ interface DiaryEntry {
 interface DiaryInterfaceProps {
   entries: DiaryEntry[];
   currentDate: string;
-  userId: string;
 }
 
 const supportiveMessages = [
@@ -42,7 +40,6 @@ const supportiveMessages = [
 export default function DiaryInterface({
   entries,
   currentDate,
-  userId,
 }: DiaryInterfaceProps) {
   const [isWriting, setIsWriting] = useState(false);
   const [newEntry, setNewEntry] = useState("");
@@ -59,10 +56,9 @@ export default function DiaryInterface({
     setIsWriting(true);
   };
 
-  const handleSubmit = async (formData: FormData) => {
-    const result = await formAction(formData);
-    
-    if (result.success) {
+  // Monitor state changes to show success animation
+  useEffect(() => {
+    if (state.success && !pending) {
       setNewEntry("");
       setSelectedMood(null);
       setIsWriting(false);
@@ -76,6 +72,10 @@ export default function DiaryInterface({
         setShowSuccess(false);
       }, 4000);
     }
+  }, [state.success, pending]);
+
+  const handleSubmit = (formData: FormData) => {
+    formAction(formData);
   };
 
   const isToday = currentDate === format(new Date(), "yyyy-MM-dd");

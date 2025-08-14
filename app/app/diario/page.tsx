@@ -3,7 +3,6 @@ import { createClient } from "@/utils/supabase/server";
 import DiaryInterface from "@/components/diary-interface";
 import DiaryNavigation from "@/components/diary-navigation";
 import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
 
 export default async function DiaryPage({
   searchParams,
@@ -30,9 +29,6 @@ export default async function DiaryPage({
     console.error("Error fetching diary entries:", error);
   }
 
-  const formattedDate = format(targetDate, "EEEE, dd 'de' MMMM 'de' yyyy", {
-    locale: ptBR,
-  });
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
@@ -48,7 +44,6 @@ export default async function DiaryPage({
       <DiaryInterface
         entries={entries || []}
         currentDate={dateString}
-        userId={user.id}
       />
     </div>
   );
