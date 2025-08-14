@@ -11,27 +11,67 @@ export async function GET(request: NextRequest) {
   const code = searchParams.get("code");
   const next = searchParams.get("next") ?? "/app";
 
+  console.log("=== AUTH CONFIRM CALLBACK ===");
+  console.log("URL:", request.url);
+  console.log("Search params:", Object.fromEntries(searchParams.entries()));
+  console.log("Code exists:", !!code);
+  console.log("Token hash exists:", !!token_hash);
+  console.log("Type:", type);
+  console.log("Next:", next);
+
   const supabase = await createClient();
 
   // Handle OAuth callback (Google, etc.)
   if (code) {
-    const { error } = await supabase.auth.exchangeCodeForSession(code);
-    if (!error) {
-      redirect(next);
+    console.log("🔄 Processing OAuth callback with code:", code.substring(0, 10) + "...");
+    
+    try {
+      const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+      
+      console.log("📊 OAuth exchange result:");
+      console.log("- Error:", error);
+      console.log("- Session exists:", !!data.session);
+      console.log("- User exists:", !!data.user);
+      
+      if (data.user) {
+        console.log("👤 User info:");
+        console.log("- ID:", data.user.id);
+        console.log("- Email:", data.user.email);
+        console.log("- Created:", data.user.created_at);
+      }
+      
+      if (!error && data.session) {
+        console.log("✅ OAuth session exchange successful, redirecting to:", next);
+        redirect(next);
+      } else {
+        console.error("❌ OAuth session exchange failed:", error);
+        redirect("/login?message=OAuth exchange failed: " + (error?.message || "Unknown error"));
+      }
+    } catch (exchangeError) {
+      console.error("💥 Exception during OAuth exchange:", exchangeError);
+      redirect("/login?message=OAuth exchange exception");
     }
   }
 
   // Handle email OTP (magic link)
   if (token_hash && type) {
-    const { error } = await supabase.auth.verifyOtp({
+    console.log("📧 Processing email OTP with type:", type);
+    const { data, error } = await supabase.auth.verifyOtp({
       type,
       token_hash,
     });
+    
     if (!error) {
+      console.log("✅ Email OTP verification successful, redirecting to:", next);
       redirect(next);
+    } else {
+      console.error("❌ Email OTP verification failed:", error);
+      redirect("/login?message=Email verification failed: " + (error?.message || "Unknown error"));
     }
   }
 
-  // redirect the user to an error page with some instructions
-  redirect("/login?message=Could not authenticate user");
+  // If we get here, something went wrong
+  console.error("❌ Authentication failed - no valid code or token_hash/type provided");
+  console.log("Available params:", Object.fromEntries(searchParams.entries()));
+  redirect("/login?message=No valid authentication parameters provided");
 }
