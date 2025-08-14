@@ -13,7 +13,7 @@ export async function createClient() {
         flowType: "pkce",
         autoRefreshToken: true,
         persistSession: true,
-        detectSessionInUrl: false,
+        detectSessionInUrl: true,
       },
       cookies: {
         getAll() {

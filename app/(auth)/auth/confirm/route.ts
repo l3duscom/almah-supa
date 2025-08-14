@@ -58,7 +58,15 @@ export async function GET(request: NextRequest) {
       }
     } catch (exchangeError) {
       console.error("💥 Exception during OAuth exchange:", exchangeError);
-      redirect("/login?message=OAuth exchange exception");
+      console.error("Stack trace:", (exchangeError as Error).stack);
+      console.error(
+        "Full error details:",
+        JSON.stringify(exchangeError, null, 2)
+      );
+      redirect(
+        "/login?message=OAuth exchange exception: " +
+          (exchangeError as Error).message
+      );
     }
   }
 
