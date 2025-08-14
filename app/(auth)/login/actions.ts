@@ -49,3 +49,21 @@ export async function signInWithGoogle() {
 
   redirect(data.url);
 }
+
+export async function signInWithApple() {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: "apple",
+    options: {
+      redirectTo: `${process.env.NEXT_PUBLIC_URL}/auth/confirm`,
+    },
+  });
+
+  if (error) {
+    redirect("/login?message=Could not authenticate user");
+  }
+
+  redirect(data.url);
+}
+

@@ -141,7 +141,7 @@ export function StripeEmbeddedCheckout({ plan, isOpen, onClose }: StripeEmbedded
     initializeCheckout()
 
     return cleanup
-  }, [isOpen, plan?.stripe_price_id]) // Only depend on simple values
+  }, [isOpen, plan]) // Include plan as dependency
 
   const handleClose = () => {
     cleanup()
