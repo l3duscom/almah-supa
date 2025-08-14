@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Gift, UsersRound, Terminal, LogOut, Crown, CreditCard } from "lucide-react";
+import { Gift, UsersRound, Terminal, LogOut, Crown, CreditCard, BookOpen } from "lucide-react";
 import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth";
 import { signOut } from "@/app/logout/actions";
@@ -32,6 +32,14 @@ export default async function Header() {
             >
               <UsersRound className="w-4 h-4" />
               Meu grupos
+            </Link>
+
+            <Link
+              href="/app/diario"
+              className="text-foreground text-sm flex gap-2 items-center"
+            >
+              <BookOpen className="w-4 h-4" />
+              Diário
             </Link>
 
 
