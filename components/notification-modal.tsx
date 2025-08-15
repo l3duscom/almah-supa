@@ -46,11 +46,11 @@ export default function NotificationModal({
   const getColors = () => {
     switch (variant) {
       case "success":
-        return "from-green-50 to-emerald-50 border-green-200";
+        return "bg-white border-green-300 shadow-green-100";
       case "error":
-        return "from-red-50 to-pink-50 border-red-200";
+        return "bg-white border-red-300 shadow-red-100";
       default:
-        return "from-blue-50 to-cyan-50 border-blue-200";
+        return "bg-white border-blue-300 shadow-blue-100";
     }
   };
 
@@ -68,33 +68,63 @@ export default function NotificationModal({
           >
             {/* Modal */}
             <motion.div
-              initial={{ opacity: 0, scale: 0.8, y: 20 }}
+              initial={{ opacity: 0, scale: 0.3, y: 50, rotateX: -15 }}
               animate={{ 
                 opacity: 1, 
-                scale: 1, 
+                scale: [0.3, 1.05, 1], 
                 y: 0,
+                rotateX: 0,
               }}
-              exit={{ opacity: 0, scale: 0.8, y: 20 }}
+              exit={{ 
+                opacity: 0, 
+                scale: 0.8, 
+                y: -30,
+                rotateX: 15,
+                transition: { duration: 0.2 }
+              }}
+              transition={{
+                type: "spring",
+                damping: 25,
+                stiffness: 300,
+                duration: 0.6
+              }}
               onClick={(e) => e.stopPropagation()}
               className="w-full max-w-md"
             >
-              <Card className={`bg-gradient-to-br ${getColors()} shadow-2xl overflow-hidden relative`}>
+              <Card className={`${getColors()} shadow-2xl overflow-hidden relative border-2`}>
+                {/* Shimmer effect */}
                 <motion.div
                   initial={{ x: "-100%" }}
                   animate={{ x: "100%" }}
-                  transition={{ duration: 1.5, delay: 0.5 }}
-                  className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
+                  transition={{ duration: 1.2, delay: 0.3, ease: "easeInOut" }}
+                  className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent"
+                />
+                
+                {/* Glow effect */}
+                <motion.div
+                  animate={{ 
+                    boxShadow: [
+                      `0 0 20px ${variant === 'success' ? 'rgba(34, 197, 94, 0.3)' : variant === 'error' ? 'rgba(239, 68, 68, 0.3)' : 'rgba(59, 130, 246, 0.3)'}`,
+                      `0 0 40px ${variant === 'success' ? 'rgba(34, 197, 94, 0.5)' : variant === 'error' ? 'rgba(239, 68, 68, 0.5)' : 'rgba(59, 130, 246, 0.5)'}`,
+                      `0 0 20px ${variant === 'success' ? 'rgba(34, 197, 94, 0.3)' : variant === 'error' ? 'rgba(239, 68, 68, 0.3)' : 'rgba(59, 130, 246, 0.3)'}`
+                    ]
+                  }}
+                  transition={{ duration: 2, repeat: 1 }}
+                  className="absolute inset-0 rounded-lg"
                 />
                 
                 <CardContent className="p-6">
                   <div className="flex items-start gap-4">
                     <motion.div
+                      initial={{ scale: 0, rotate: -180 }}
                       animate={{ 
-                        scale: [1, 1.1, 1],
+                        scale: [0, 1.3, 1],
+                        rotate: [0, 360, 0],
                       }}
                       transition={{ 
-                        duration: 1,
-                        repeat: 2
+                        duration: 0.8,
+                        ease: "easeOut",
+                        delay: 0.2
                       }}
                     >
                       {getIcon()}
@@ -103,48 +133,68 @@ export default function NotificationModal({
                     <div className="flex-1 min-w-0">
                       {title && (
                         <motion.h3 
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: 0.2 }}
-                          className="font-semibold text-lg mb-2"
+                          initial={{ opacity: 0, x: -20, scale: 0.8 }}
+                          animate={{ opacity: 1, x: 0, scale: 1 }}
+                          transition={{ 
+                            delay: 0.4,
+                            type: "spring",
+                            damping: 20,
+                            stiffness: 300
+                          }}
+                          className="font-semibold text-lg mb-2 text-gray-800"
                         >
                           {title}
                         </motion.h3>
                       )}
                       
                       <motion.p 
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.3 }}
-                        className="text-sm leading-relaxed break-words"
+                        initial={{ opacity: 0, x: -20, scale: 0.9 }}
+                        animate={{ opacity: 1, x: 0, scale: 1 }}
+                        transition={{ 
+                          delay: 0.6,
+                          type: "spring",
+                          damping: 20,
+                          stiffness: 300
+                        }}
+                        className="text-sm leading-relaxed break-words text-gray-600"
                       >
                         {description}
                       </motion.p>
                     </div>
                     
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={onClose}
-                      className="flex-shrink-0 h-8 w-8 p-0 hover:bg-white/20"
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: 0.8, type: "spring", damping: 15 }}
                     >
-                      <X className="h-4 w-4" />
-                    </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={onClose}
+                        className="flex-shrink-0 h-8 w-8 p-0 hover:bg-gray-100 transition-colors"
+                      >
+                        <X className="h-4 w-4 text-gray-500" />
+                      </Button>
+                    </motion.div>
                   </div>
                   
                   {autoClose && (
-                    <motion.div
-                      initial={{ width: "100%" }}
-                      animate={{ width: "0%" }}
-                      transition={{ duration: autoCloseDelay / 1000, ease: "linear" }}
-                      className={`mt-4 h-1 rounded-full ${
-                        variant === "success" 
-                          ? "bg-green-500" 
-                          : variant === "error" 
-                          ? "bg-red-500" 
-                          : "bg-blue-500"
-                      }`}
-                    />
+                    <div className="mt-4">
+                      <div className="h-1 bg-gray-200 rounded-full overflow-hidden">
+                        <motion.div
+                          initial={{ width: "100%" }}
+                          animate={{ width: "0%" }}
+                          transition={{ duration: autoCloseDelay / 1000, ease: "linear" }}
+                          className={`h-full rounded-full ${
+                            variant === "success" 
+                              ? "bg-gradient-to-r from-green-500 to-emerald-400" 
+                              : variant === "error" 
+                              ? "bg-gradient-to-r from-red-500 to-pink-400" 
+                              : "bg-gradient-to-r from-blue-500 to-cyan-400"
+                          }`}
+                        />
+                      </div>
+                    </div>
                   )}
                 </CardContent>
               </Card>
