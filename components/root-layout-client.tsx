@@ -1,35 +1,43 @@
 "use client";
 
 import { useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { useAudioPlayer } from "@/hooks/use-audio-player";
 import AudioPlayerBar from "@/components/audio-player-bar";
 
 export default function RootLayoutClient() {
   const { setPlaylist } = useAudioPlayer();
+  const pathname = usePathname();
+  
+  // Verificar se está em uma rota protegida (rotas que começam com /app)
+  const isProtectedRoute = pathname.startsWith('/app');
 
   useEffect(() => {
-    // Inicializar playlist com áudios de exemplo
-    setPlaylist([
-      {
-        id: "1",
-        title: "Meditação Guiada - Respiração",
-        artist: "Almah Wellness",
-        url: "/audio/meditation-breathing.mp3"
-      },
-      {
-        id: "2", 
-        title: "Sons da Natureza - Chuva",
-        artist: "Almah Wellness",
-        url: "/audio/nature-rain.mp3"
-      },
-      {
-        id: "3",
-        title: "Música Relaxante - Piano",
-        artist: "Almah Wellness", 
-        url: "/audio/relaxing-piano.mp3"
-      }
-    ]);
-  }, [setPlaylist]);
+    // Inicializar playlist com áudios de exemplo apenas em rotas protegidas
+    if (isProtectedRoute) {
+      setPlaylist([
+        {
+          id: "1",
+          title: "Meditação Guiada - Respiração",
+          artist: "Almah Wellness",
+          url: "/audio/meditation-breathing.mp3"
+        },
+        {
+          id: "2", 
+          title: "Sons da Natureza - Chuva",
+          artist: "Almah Wellness",
+          url: "/audio/nature-rain.mp3"
+        },
+        {
+          id: "3",
+          title: "Música Relaxante - Piano",
+          artist: "Almah Wellness", 
+          url: "/audio/relaxing-piano.mp3"
+        }
+      ]);
+    }
+  }, [setPlaylist, isProtectedRoute]);
 
-  return <AudioPlayerBar />;
+  // Só renderizar o player em rotas protegidas
+  return isProtectedRoute ? <AudioPlayerBar /> : null;
 }
