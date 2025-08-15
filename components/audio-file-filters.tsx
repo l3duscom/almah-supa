@@ -120,7 +120,7 @@ export default function AudioFileFilters({
               <SelectValue placeholder="Todas as categorias" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Todas as categorias</SelectItem>
+              <SelectItem value="all">Todas as categorias</SelectItem>
               {categories.map((category) => (
                 <SelectItem key={category.id} value={category.id}>
                   <div className="flex items-center gap-2">
@@ -144,7 +144,7 @@ export default function AudioFileFilters({
               <SelectValue placeholder="Todos os humores" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Todos os humores</SelectItem>
+              <SelectItem value="all">Todos os humores</SelectItem>
               {moods.map((mood) => (
                 <SelectItem key={mood.id} value={mood.id}>
                   Nível {mood.mood_level} - {mood.name}
@@ -165,7 +165,7 @@ export default function AudioFileFilters({
               <SelectValue placeholder="Todos os tipos" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Todos os tipos</SelectItem>
+              <SelectItem value="all">Todos os tipos</SelectItem>
               <SelectItem value="false">Gratuito</SelectItem>
               <SelectItem value="true">Premium</SelectItem>
             </SelectContent>
@@ -183,7 +183,7 @@ export default function AudioFileFilters({
               <SelectValue placeholder="Todos os status" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Todos os status</SelectItem>
+              <SelectItem value="all">Todos os status</SelectItem>
               <SelectItem value="true">Ativo</SelectItem>
               <SelectItem value="false">Inativo</SelectItem>
             </SelectContent>
