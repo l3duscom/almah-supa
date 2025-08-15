@@ -29,7 +29,7 @@ export default function MobileNav({ user, isSuperAdmin, isPremium }: MobileNavPr
       {/* Hamburger Menu Button */}
       <button
         onClick={toggleMenu}
-        className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors mr-2"
+        className="p-2 rounded-md hover:bg-gray-100 transition-colors mr-2"
         aria-label="Toggle menu"
       >
         {isOpen ? (
@@ -49,7 +49,7 @@ export default function MobileNav({ user, isSuperAdmin, isPremium }: MobileNavPr
           />
           
           {/* Menu Panel */}
-          <div className="fixed top-0 right-0 h-full w-64 bg-white dark:bg-gray-900 shadow-xl z-50 transform transition-transform duration-300">
+          <div className="fixed top-0 right-0 h-full w-64 bg-white shadow-xl z-50 transform transition-transform duration-300">
             <div className="flex flex-col h-full">
               {/* Header */}
               <div className="flex items-center justify-between p-4 border-b">
@@ -59,14 +59,14 @@ export default function MobileNav({ user, isSuperAdmin, isPremium }: MobileNavPr
                 </div>
                 <button
                   onClick={closeMenu}
-                  className="p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
+                  className="p-1 rounded-md hover:bg-gray-100"
                 >
                   <X className="w-4 h-4" />
                 </button>
               </div>
 
               {/* User Info */}
-              <div className="p-4 border-b bg-gray-50 dark:bg-gray-800">
+              <div className="p-4 border-b bg-gray-50">
                 <p className="font-medium text-sm">{user?.name || user?.email}</p>
                 <div className="flex items-center gap-2 mt-1">
                   {isPremium ? (
@@ -90,7 +90,7 @@ export default function MobileNav({ user, isSuperAdmin, isPremium }: MobileNavPr
                 <Link
                   href="/app/diario"
                   onClick={closeMenu}
-                  className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                  className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 transition-colors"
                 >
                   <BookOpen className="w-5 h-5 text-gray-600" />
                   <span>Diário</span>
@@ -99,7 +99,7 @@ export default function MobileNav({ user, isSuperAdmin, isPremium }: MobileNavPr
                 <Link
                   href="/app/grupos"
                   onClick={closeMenu}
-                  className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                  className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 transition-colors"
                 >
                   <UsersRound className="w-5 h-5 text-gray-600" />
                   <span>Meus Grupos</span>
@@ -108,7 +108,7 @@ export default function MobileNav({ user, isSuperAdmin, isPremium }: MobileNavPr
                 <Link
                   href="/app/grupos/novo"
                   onClick={closeMenu}
-                  className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                  className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 transition-colors"
                 >
                   <Plus className="w-5 h-5 text-gray-600" />
                   <span>Novo Grupo</span>
@@ -117,7 +117,7 @@ export default function MobileNav({ user, isSuperAdmin, isPremium }: MobileNavPr
                 <Link
                   href="/app/planos"
                   onClick={closeMenu}
-                  className={`flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors ${
+                  className={`flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 transition-colors ${
                     isPremium ? 'text-yellow-600' : 'text-gray-600'
                   }`}
                 >
@@ -138,7 +138,7 @@ export default function MobileNav({ user, isSuperAdmin, isPremium }: MobileNavPr
                   <Link
                     href="/app/console"
                     onClick={closeMenu}
-                    className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-orange-600"
+                    className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 transition-colors text-orange-600"
                   >
                     <Terminal className="w-5 h-5" />
                     <span>Console Admin</span>
