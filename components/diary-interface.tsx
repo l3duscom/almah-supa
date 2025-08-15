@@ -27,6 +27,7 @@ interface DiaryEntry {
 interface DiaryInterfaceProps {
   entries: DiaryEntry[];
   currentDate: string;
+  forceToday?: boolean;
 }
 
 const supportiveMessages = [
@@ -43,6 +44,7 @@ const supportiveMessages = [
 export default function DiaryInterface({
   entries,
   currentDate,
+  forceToday = false,
 }: DiaryInterfaceProps) {
   const [isWriting, setIsWriting] = useState(false);
   const [newEntry, setNewEntry] = useState("");
@@ -87,24 +89,37 @@ export default function DiaryInterface({
     formAction(formData);
   };
 
-  // Função mais robusta para detectar se é hoje
-  const getTodayString = () => {
+  // Função mais robusta para detectar se é hoje usando UTC
+  const getTodayStringUTC = () => {
     const now = new Date();
-    // Força o timezone local
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    return format(today, "yyyy-MM-dd");
+    const utcNow = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
+    return format(utcNow, "yyyy-MM-dd");
   };
   
-  const isToday = currentDate === getTodayString();
+  // Função alternativa usando apenas timezone local
+  const getTodayStringLocal = () => {
+    const now = new Date();
+    return format(now, "yyyy-MM-dd");
+  };
   
-  // Debug temporário
-  console.log("Debug DiaryInterface:", {
+  // Tenta ambas as abordagens
+  const todayUTC = getTodayStringUTC();
+  const todayLocal = getTodayStringLocal();
+  const isToday = forceToday || currentDate === todayLocal || currentDate === todayUTC;
+  
+  // Debug detalhado
+  console.log("🔍 Debug DiaryInterface DETALHADO:", {
     currentDate,
-    today: getTodayString(),
-    todayFormat: format(new Date(), "yyyy-MM-dd"),
+    todayLocal,
+    todayUTC,
+    forceToday,
     isToday,
+    comparison1: currentDate === todayLocal,
+    comparison2: currentDate === todayUTC,
     newDate: new Date(),
-    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+    currentDateType: typeof currentDate,
+    todayLocalType: typeof todayLocal
   });
 
   return (
@@ -327,7 +342,7 @@ export default function DiaryInterface({
                 Que tal começar hoje? 😊
               </p>
               <Button asChild className="mt-4">
-                <Link href="/app/diario" className="flex items-center gap-2">
+                <Link href={`/app/diario?date=${todayLocal}`} className="flex items-center gap-2">
                   Ir para hoje
                   <ArrowRight className="h-4 w-4" />
                 </Link>
