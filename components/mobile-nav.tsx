@@ -49,36 +49,36 @@ export default function MobileNav({ user, isSuperAdmin, isPremium }: MobileNavPr
           />
           
           {/* Menu Panel */}
-          <div className="fixed top-0 right-0 h-full w-72 sm:w-80 bg-violet-600 backdrop-blur-sm shadow-xl z-50 transform transition-transform duration-300 ease-out border-l border-violet-500">
+          <div className="fixed top-0 right-0 h-full w-72 sm:w-80 bg-white shadow-xl z-50 transform transition-transform duration-300 ease-out border-l border-gray-200">
             <div className="flex flex-col h-full">
               {/* Header */}
-              <div className="flex items-center justify-between p-4 border-b border-violet-400/30">
+              <div className="flex items-center justify-between p-4 border-b border-gray-200">
                 <div className="flex items-center gap-2">
-                  <Heart className="h-5 w-5 text-white" />
-                  <span className="font-bold text-white">Almah</span>
+                  <Heart className="h-5 w-5 text-violet-600" />
+                  <span className="font-bold text-gray-900">Almah</span>
                 </div>
                 <button
                   onClick={closeMenu}
-                  className="p-2 rounded-lg hover:bg-white/10 text-white transition-all duration-200 hover:scale-105"
+                  className="p-2 rounded-lg hover:bg-gray-100 text-gray-600 transition-all duration-200 hover:scale-105"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
               {/* User Info */}
-              <div className="p-3 border-b border-violet-400/30 bg-gradient-to-r from-violet-700/50 to-violet-600/50">
-                <p className="font-medium text-sm text-white truncate">{user?.name || user?.email}</p>
+              <div className="p-3 border-b border-gray-200 bg-gray-50">
+                <p className="font-medium text-sm text-gray-900 truncate">{user?.name || user?.email}</p>
                 <div className="flex items-center gap-2 mt-1 flex-wrap">
                   {isPremium ? (
-                    <span className="flex items-center gap-1 text-xs text-yellow-300 bg-yellow-300/10 px-2 py-0.5 rounded-full">
+                    <span className="flex items-center gap-1 text-xs text-yellow-700 bg-yellow-100 px-2 py-0.5 rounded-full">
                       <Crown className="w-3 h-3" />
                       Premium
                     </span>
                   ) : (
-                    <span className="text-xs text-violet-200 bg-violet-200/10 px-2 py-0.5 rounded-full">Gratuito</span>
+                    <span className="text-xs text-gray-600 bg-gray-200 px-2 py-0.5 rounded-full">Gratuito</span>
                   )}
                   {isSuperAdmin && (
-                    <span className="text-xs bg-orange-500/80 text-white px-2 py-0.5 rounded-full font-medium">
+                    <span className="text-xs bg-orange-500 text-white px-2 py-0.5 rounded-full font-medium">
                       Admin
                     </span>
                   )}
@@ -91,7 +91,7 @@ export default function MobileNav({ user, isSuperAdmin, isPremium }: MobileNavPr
                 <Link
                   href="/app/diario"
                   onClick={closeMenu}
-                  className="flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r from-violet-400 to-purple-500 hover:from-violet-500 hover:to-purple-600 transition-all duration-300 text-white hover:scale-105 shadow-lg shadow-violet-900/30"
+                  className="flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 transition-all duration-300 text-white hover:scale-105 shadow-lg"
                 >
                   <BookOpen className="w-5 h-5 flex-shrink-0" />
                   <span className="font-semibold">Meu Diário</span>
@@ -100,7 +100,7 @@ export default function MobileNav({ user, isSuperAdmin, isPremium }: MobileNavPr
                 <Link
                   href="/app/grupos"
                   onClick={closeMenu}
-                  className="flex items-center gap-3 p-3 rounded-xl hover:bg-white/10 transition-all duration-200 text-white/90 hover:text-white hover:scale-105"
+                  className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-100 transition-all duration-200 text-gray-700 hover:text-gray-900 hover:scale-105"
                 >
                   <UsersRound className="w-5 h-5 flex-shrink-0" />
                   <span className="font-medium">Meus Grupos</span>
@@ -109,7 +109,7 @@ export default function MobileNav({ user, isSuperAdmin, isPremium }: MobileNavPr
                 <Link
                   href="/app/grupos/novo"
                   onClick={closeMenu}
-                  className="flex items-center gap-3 p-3 rounded-xl hover:bg-white/10 transition-all duration-200 text-white/90 hover:text-white hover:scale-105"
+                  className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-100 transition-all duration-200 text-gray-700 hover:text-gray-900 hover:scale-105"
                 >
                   <Plus className="w-5 h-5 flex-shrink-0" />
                   <span className="font-medium">Novo Grupo</span>
@@ -118,8 +118,8 @@ export default function MobileNav({ user, isSuperAdmin, isPremium }: MobileNavPr
                 <Link
                   href="/app/planos"
                   onClick={closeMenu}
-                  className={`flex items-center gap-3 p-3 rounded-xl hover:bg-white/10 transition-all duration-200 hover:scale-105 ${
-                    isPremium ? 'text-yellow-300 hover:text-yellow-200' : 'text-violet-200 hover:text-white'
+                  className={`flex items-center gap-3 p-3 rounded-xl hover:bg-gray-100 transition-all duration-200 hover:scale-105 ${
+                    isPremium ? 'text-yellow-600 hover:text-yellow-700' : 'text-gray-700 hover:text-gray-900'
                   }`}
                 >
                   {isPremium ? (
@@ -129,7 +129,7 @@ export default function MobileNav({ user, isSuperAdmin, isPremium }: MobileNavPr
                   )}
                   <span className="font-medium flex-1">{isPremium ? 'Premium' : 'Upgrade'}</span>
                   {!isPremium && (
-                    <span className="bg-gradient-to-r from-violet-400 to-purple-500 text-white text-xs px-2 py-1 rounded-full font-medium">
+                    <span className="bg-gradient-to-r from-violet-500 to-purple-600 text-white text-xs px-2 py-1 rounded-full font-medium">
                       R$ 19
                     </span>
                   )}
@@ -139,7 +139,7 @@ export default function MobileNav({ user, isSuperAdmin, isPremium }: MobileNavPr
                   <Link
                     href="/app/console"
                     onClick={closeMenu}
-                    className="flex items-center gap-3 p-3 rounded-xl hover:bg-orange-500/10 transition-all duration-200 text-orange-300 hover:text-orange-200 hover:scale-105 border border-orange-500/20"
+                    className="flex items-center gap-3 p-3 rounded-xl hover:bg-orange-50 transition-all duration-200 text-orange-600 hover:text-orange-700 hover:scale-105 border border-orange-200"
                   >
                     <Terminal className="w-5 h-5 flex-shrink-0" />
                     <span className="font-medium">Console</span>
@@ -148,12 +148,12 @@ export default function MobileNav({ user, isSuperAdmin, isPremium }: MobileNavPr
               </nav>
 
               {/* Bottom Actions */}
-              <div className="p-3 border-t border-violet-400/30 bg-violet-700/30">
+              <div className="p-3 border-t border-gray-200 bg-gray-50">
                 <form action={signOut}>
                   <Button 
                     type="submit" 
                     variant="ghost" 
-                    className="w-full justify-start gap-3 text-red-300 hover:text-red-200 hover:bg-red-500/20 transition-all duration-200 hover:scale-105 rounded-xl py-2"
+                    className="w-full justify-start gap-3 text-red-600 hover:text-red-700 hover:bg-red-50 transition-all duration-200 hover:scale-105 rounded-xl py-2"
                   >
                     <LogOut className="w-5 h-5" />
                     <span className="font-medium">Sair</span>
