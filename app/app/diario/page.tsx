@@ -16,14 +16,6 @@ export default async function DiaryPage({
   // SOLUÇÃO ROBUSTA: Se não há parâmetro, usa função que funciona no servidor e cliente
   const finalDateString = date || getTodayDateString();
   
-  // Debug com nova lógica
-  console.log("🗓️ Debug DiaryPage:", {
-    dateParam: date,
-    finalDateString,
-    today: getTodayDateString(),
-    isToday: finalDateString === getTodayDateString(),
-    timezoneOffset: new Date().getTimezoneOffset()
-  });
 
   // Get diary entries for the selected date
   const { data: entries, error } = await supabase

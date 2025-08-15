@@ -58,17 +58,6 @@ export function parseLocalDateString(dateString: string): Date {
  */
 export function isToday(dateString: string): boolean {
   const today = getTodayDateString();
-  
-  // Debug log
-  console.log("🗓️ Date comparison:", {
-    dateString,
-    today,
-    isEqual: dateString === today,
-    timezoneOffset: new Date().getTimezoneOffset(),
-    utcNow: new Date().toISOString(),
-    localNow: new Date().toLocaleString()
-  });
-  
   return dateString === today;
 }
 

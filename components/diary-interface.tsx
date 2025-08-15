@@ -92,14 +92,6 @@ export default function DiaryInterface({
   const today = getTodayDateString();
   const isToday = isTodayUtil(currentDate);
   
-  // Debug com nova lógica
-  console.log("🔍 Debug DiaryInterface:", {
-    currentDate,
-    today,
-    isToday,
-    directComparison: currentDate === today,
-    timezoneOffset: new Date().getTimezoneOffset()
-  });
 
   return (
     <div className="space-y-6">
