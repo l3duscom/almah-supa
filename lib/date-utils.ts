@@ -7,18 +7,17 @@ import { format } from "date-fns";
 
 /**
  * Obtém a data local atual no formato yyyy-MM-dd
- * Usa UTC como base e aplica o offset do timezone local
+ * Usa métodos nativos para garantir timezone local correto
  */
 export function getTodayDateString(): string {
   const now = new Date();
   
-  // Pega o offset do timezone local em minutos
-  const timezoneOffset = now.getTimezoneOffset();
+  // Usa métodos nativos para pegar ano, mês e dia no timezone local
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0'); // getMonth() é 0-indexed
+  const day = String(now.getDate()).padStart(2, '0');
   
-  // Cria uma nova data ajustando pelo offset (convertendo para timezone local)
-  const localDate = new Date(now.getTime() - (timezoneOffset * 60 * 1000));
-  
-  return format(localDate, "yyyy-MM-dd");
+  return `${year}-${month}-${day}`;
 }
 
 /**
