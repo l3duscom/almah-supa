@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
-import { Heart, Sparkles, Sun, Cloud, Flower } from "lucide-react";
+import { Heart, Sparkles, Sun, Cloud, Flower, LucideIcon } from "lucide-react";
 
 const boostMessages = [
   "Você é incrível! ✨",
@@ -16,12 +16,12 @@ const boostMessages = [
   "Um passo de cada vez... 🚶‍♀️",
 ];
 
-const moodIcons = [Heart, Sparkles, Sun, Cloud, Flower];
+const moodIcons: LucideIcon[] = [Heart, Sparkles, Sun, Cloud, Flower];
 
 export default function MoodBoostButton() {
   const [showBoost, setShowBoost] = useState(false);
   const [currentMessage, setCurrentMessage] = useState("");
-  const [currentIcon, setCurrentIcon] = useState(Heart);
+  const [CurrentIcon, setCurrentIcon] = useState<LucideIcon>(Heart);
 
   const handleBoost = () => {
     const randomMessage = boostMessages[Math.floor(Math.random() * boostMessages.length)];
@@ -76,7 +76,7 @@ export default function MoodBoostButton() {
                   }}
                   transition={{ duration: 0.8, repeat: 2 }}
                 >
-                  <currentIcon className="h-6 w-6 text-pink-600" />
+                  <CurrentIcon className="h-6 w-6 text-pink-600" />
                 </motion.div>
                 <motion.span 
                   initial={{ opacity: 0 }}
