@@ -87,7 +87,25 @@ export default function DiaryInterface({
     formAction(formData);
   };
 
-  const isToday = currentDate === format(new Date(), "yyyy-MM-dd");
+  // Função mais robusta para detectar se é hoje
+  const getTodayString = () => {
+    const now = new Date();
+    // Força o timezone local
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    return format(today, "yyyy-MM-dd");
+  };
+  
+  const isToday = currentDate === getTodayString();
+  
+  // Debug temporário
+  console.log("Debug DiaryInterface:", {
+    currentDate,
+    today: getTodayString(),
+    todayFormat: format(new Date(), "yyyy-MM-dd"),
+    isToday,
+    newDate: new Date(),
+    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+  });
 
   return (
     <div className="space-y-6">
