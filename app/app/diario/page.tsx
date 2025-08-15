@@ -13,20 +13,15 @@ export default async function DiaryPage({
   const { date } = await searchParams;
   const supabase = await createClient();
 
-  // Use current date if no date specified, com timezone local consistente
-  const targetDate = date ? new Date(date) : (() => {
-    const now = new Date();
-    return new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  })();
-  const dateString = format(targetDate, "yyyy-MM-dd");
+  // Use current date if no date specified - SIMPLIFICADO
+  const dateString = date || format(new Date(), "yyyy-MM-dd");
   
   // Debug temporário
   console.log("Debug DiaryPage:", {
     dateParam: date,
-    targetDate,
     dateString,
-    newDate: new Date(),
-    todayFormatted: format(new Date(), "yyyy-MM-dd")
+    today: format(new Date(), "yyyy-MM-dd"),
+    isToday: dateString === format(new Date(), "yyyy-MM-dd")
   });
 
   // Get diary entries for the selected date
@@ -56,7 +51,6 @@ export default async function DiaryPage({
       <DiaryInterface
         entries={entries || []}
         currentDate={dateString}
-        forceToday={!date} 
       />
     </div>
   );

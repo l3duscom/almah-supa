@@ -27,7 +27,6 @@ interface DiaryEntry {
 interface DiaryInterfaceProps {
   entries: DiaryEntry[];
   currentDate: string;
-  forceToday?: boolean;
 }
 
 const supportiveMessages = [
@@ -44,7 +43,6 @@ const supportiveMessages = [
 export default function DiaryInterface({
   entries,
   currentDate,
-  forceToday = false,
 }: DiaryInterfaceProps) {
   const [isWriting, setIsWriting] = useState(false);
   const [newEntry, setNewEntry] = useState("");
@@ -89,37 +87,16 @@ export default function DiaryInterface({
     formAction(formData);
   };
 
-  // Função mais robusta para detectar se é hoje usando UTC
-  const getTodayStringUTC = () => {
-    const now = new Date();
-    const utcNow = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
-    return format(utcNow, "yyyy-MM-dd");
-  };
+  // Simplifica: só compara com hoje usando date-fns
+  const today = format(new Date(), "yyyy-MM-dd");
+  const isToday = currentDate === today;
   
-  // Função alternativa usando apenas timezone local
-  const getTodayStringLocal = () => {
-    const now = new Date();
-    return format(now, "yyyy-MM-dd");
-  };
-  
-  // Tenta ambas as abordagens
-  const todayUTC = getTodayStringUTC();
-  const todayLocal = getTodayStringLocal();
-  const isToday = forceToday || currentDate === todayLocal || currentDate === todayUTC;
-  
-  // Debug detalhado
-  console.log("🔍 Debug DiaryInterface DETALHADO:", {
+  // Debug simples
+  console.log("🔍 Debug DiaryInterface:", {
     currentDate,
-    todayLocal,
-    todayUTC,
-    forceToday,
+    today,
     isToday,
-    comparison1: currentDate === todayLocal,
-    comparison2: currentDate === todayUTC,
-    newDate: new Date(),
-    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-    currentDateType: typeof currentDate,
-    todayLocalType: typeof todayLocal
+    areEqual: currentDate === today
   });
 
   return (
@@ -342,7 +319,7 @@ export default function DiaryInterface({
                 Que tal começar hoje? 😊
               </p>
               <Button asChild className="mt-4">
-                <Link href={`/app/diario?date=${todayLocal}`} className="flex items-center gap-2">
+                <Link href={`/app/diario?date=${today}`} className="flex items-center gap-2">
                   Ir para hoje
                   <ArrowRight className="h-4 w-4" />
                 </Link>
