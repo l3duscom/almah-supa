@@ -45,7 +45,23 @@ export default function RootLayoutClient() {
       }
 
       try {
-        const supabase = createClient();
+        let supabase;
+        try {
+          supabase = createClient();
+        } catch (clientError) {
+          console.error("Failed to create Supabase client:", clientError);
+          // Set fallback playlist and exit
+          setPlaylist([
+            {
+              id: "fallback-env",
+              title: "Meditação Guiada - Respiração",
+              artist: "Almah Wellness",
+              url: "/audio/meditation-breathing.mp3"
+            }
+          ]);
+          setIsLoading(false);
+          return;
+        }
         
         // Get user with proper error handling
         const { data: { user }, error: userError } = await supabase.auth.getUser();
