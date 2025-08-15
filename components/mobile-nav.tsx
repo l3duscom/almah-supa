@@ -49,7 +49,7 @@ export default function MobileNav({ user, isSuperAdmin, isPremium }: MobileNavPr
           />
           
           {/* Menu Panel */}
-          <div className="fixed top-0 right-0 h-full w-72 sm:w-80 bg-violet-600/95 backdrop-blur-md shadow-xl z-50 transform transition-transform duration-300 ease-out">
+          <div className="fixed top-0 right-0 h-full w-72 sm:w-80 bg-violet-600 shadow-xl z-50 transform transition-transform duration-300 ease-out">
             <div className="flex flex-col h-full">
               {/* Header */}
               <div className="flex items-center justify-between p-4 border-b border-violet-400/30">
@@ -66,32 +66,32 @@ export default function MobileNav({ user, isSuperAdmin, isPremium }: MobileNavPr
               </div>
 
               {/* User Info */}
-              <div className="p-4 border-b border-violet-400/30 bg-gradient-to-r from-violet-700/50 to-violet-600/50">
+              <div className="p-3 border-b border-violet-400/30 bg-gradient-to-r from-violet-700/50 to-violet-600/50">
                 <p className="font-medium text-sm text-white truncate">{user?.name || user?.email}</p>
-                <div className="flex items-center gap-2 mt-2 flex-wrap">
+                <div className="flex items-center gap-2 mt-1 flex-wrap">
                   {isPremium ? (
-                    <span className="flex items-center gap-1 text-xs text-yellow-300 bg-yellow-300/10 px-2 py-1 rounded-full">
+                    <span className="flex items-center gap-1 text-xs text-yellow-300 bg-yellow-300/10 px-2 py-0.5 rounded-full">
                       <Crown className="w-3 h-3" />
                       Premium
                     </span>
                   ) : (
-                    <span className="text-xs text-violet-200 bg-violet-200/10 px-2 py-1 rounded-full">Plano Gratuito</span>
+                    <span className="text-xs text-violet-200 bg-violet-200/10 px-2 py-0.5 rounded-full">Gratuito</span>
                   )}
                   {isSuperAdmin && (
-                    <span className="text-xs bg-orange-500/80 text-white px-2 py-1 rounded-full font-medium">
-                      Super Admin
+                    <span className="text-xs bg-orange-500/80 text-white px-2 py-0.5 rounded-full font-medium">
+                      Admin
                     </span>
                   )}
                 </div>
               </div>
 
               {/* Navigation Links */}
-              <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
+              <nav className="flex-1 p-4 space-y-2">
                 {/* Botão principal - Meu Diário */}
                 <Link
                   href="/app/diario"
                   onClick={closeMenu}
-                  className="flex items-center gap-3 p-4 rounded-xl bg-gradient-to-r from-violet-400 to-purple-500 hover:from-violet-500 hover:to-purple-600 transition-all duration-300 text-white hover:scale-105 shadow-lg shadow-violet-900/30 mb-3"
+                  className="flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r from-violet-400 to-purple-500 hover:from-violet-500 hover:to-purple-600 transition-all duration-300 text-white hover:scale-105 shadow-lg shadow-violet-900/30"
                 >
                   <BookOpen className="w-5 h-5 flex-shrink-0" />
                   <span className="font-semibold">Meu Diário</span>
@@ -127,10 +127,10 @@ export default function MobileNav({ user, isSuperAdmin, isPremium }: MobileNavPr
                   ) : (
                     <CreditCard className="w-5 h-5 flex-shrink-0" />
                   )}
-                  <span className="font-medium flex-1">{isPremium ? 'Premium' : 'Fazer Upgrade'}</span>
+                  <span className="font-medium flex-1">{isPremium ? 'Premium' : 'Upgrade'}</span>
                   {!isPremium && (
                     <span className="bg-gradient-to-r from-violet-400 to-purple-500 text-white text-xs px-2 py-1 rounded-full font-medium">
-                      R$ 19/mês
+                      R$ 19
                     </span>
                   )}
                 </Link>
@@ -142,18 +142,18 @@ export default function MobileNav({ user, isSuperAdmin, isPremium }: MobileNavPr
                     className="flex items-center gap-3 p-3 rounded-xl hover:bg-orange-500/10 transition-all duration-200 text-orange-300 hover:text-orange-200 hover:scale-105 border border-orange-500/20"
                   >
                     <Terminal className="w-5 h-5 flex-shrink-0" />
-                    <span className="font-medium">Console Admin</span>
+                    <span className="font-medium">Console</span>
                   </Link>
                 )}
               </nav>
 
               {/* Bottom Actions */}
-              <div className="p-4 border-t border-violet-400/30 bg-violet-700/30">
+              <div className="p-3 border-t border-violet-400/30 bg-violet-700/30">
                 <form action={signOut}>
                   <Button 
                     type="submit" 
                     variant="ghost" 
-                    className="w-full justify-start gap-3 text-red-300 hover:text-red-200 hover:bg-red-500/20 transition-all duration-200 hover:scale-105 rounded-xl p-3"
+                    className="w-full justify-start gap-3 text-red-300 hover:text-red-200 hover:bg-red-500/20 transition-all duration-200 hover:scale-105 rounded-xl py-2"
                   >
                     <LogOut className="w-5 h-5" />
                     <span className="font-medium">Sair</span>
