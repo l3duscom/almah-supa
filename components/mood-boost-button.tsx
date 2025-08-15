@@ -34,9 +34,8 @@ export default function MoodBoostButton() {
   return (
     <Button
       variant="outline"
-      size="sm"
       onClick={handleBoost}
-      className="hover:bg-pink-50 hover:border-pink-200 transition-colors"
+      className="hover:bg-pink-50 hover:border-pink-200 transition-colors h-[56px] px-4"
     >
       <Heart className="h-4 w-4 mr-2 text-pink-500" />
       Preciso de apoio
