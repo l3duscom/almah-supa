@@ -11,7 +11,7 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { motion } from "framer-motion";
 import { updateDiaryEntry, deleteDiaryEntry } from "@/app/app/diario/actions";
-import { toast } from "sonner";
+import { useNotification } from "@/hooks/use-notification";
 
 interface DiaryEntryProps {
   entry: {
@@ -39,6 +39,7 @@ export default function DiaryEntry({ entry, canEdit }: DiaryEntryProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editContent, setEditContent] = useState(entry.content);
   const [isLoading, setIsLoading] = useState(false);
+  const { showNotification } = useNotification();
 
   const moodDisplay = getMoodDisplay(entry.mood);
   const formattedTime = format(new Date(entry.created_at), "HH:mm", { locale: ptBR });
@@ -46,7 +47,11 @@ export default function DiaryEntry({ entry, canEdit }: DiaryEntryProps) {
 
   const handleSave = async () => {
     if (!editContent.trim()) {
-      toast.error("O conteúdo não pode estar vazio");
+      showNotification({
+        variant: "error",
+        description: "O conteúdo não pode estar vazio",
+        title: "Erro de validação"
+      });
       return;
     }
 
@@ -55,12 +60,24 @@ export default function DiaryEntry({ entry, canEdit }: DiaryEntryProps) {
       const result = await updateDiaryEntry(entry.id, editContent);
       if (result.success) {
         setIsEditing(false);
-        toast.success(result.message);
+        showNotification({
+          variant: "success",
+          description: result.message || "Entrada salva com sucesso!",
+          title: "Sucesso"
+        });
       } else {
-        toast.error(result.message);
+        showNotification({
+          variant: "error",
+          description: result.message || "Erro ao salvar entrada",
+          title: "Erro"
+        });
       }
     } catch {
-      toast.error("Erro ao salvar");
+      showNotification({
+        variant: "error",
+        description: "Erro ao salvar",
+        title: "Erro inesperado"
+      });
     } finally {
       setIsLoading(false);
     }
@@ -71,12 +88,24 @@ export default function DiaryEntry({ entry, canEdit }: DiaryEntryProps) {
     try {
       const result = await deleteDiaryEntry(entry.id);
       if (result.success) {
-        toast.success(result.message);
+        showNotification({
+          variant: "success",
+          description: result.message || "Entrada excluída com sucesso!",
+          title: "Sucesso"
+        });
       } else {
-        toast.error(result.message);
+        showNotification({
+          variant: "error",
+          description: result.message || "Erro ao excluir entrada",
+          title: "Erro"
+        });
       }
     } catch {
-      toast.error("Erro ao excluir");
+      showNotification({
+        variant: "error",
+        description: "Erro ao excluir",
+        title: "Erro inesperado"
+      });
     } finally {
       setIsLoading(false);
     }

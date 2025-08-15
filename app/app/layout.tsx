@@ -4,7 +4,6 @@ import { createClient } from "@/utils/supabase/server";
 import { getCurrentUser } from "@/lib/auth";
 import { getUserGroupCount } from "@/lib/subscription";
 import { redirect } from "next/navigation";
-import { Toaster } from "sonner";
 
 export default async function AppLayout({
   children,
@@ -29,7 +28,6 @@ export default async function AppLayout({
       <UpgradeBanner groupCount={groupCount} plan={plan} />
       <Header />
       {children}
-      <Toaster />
     </div>
   );
 }
