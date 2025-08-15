@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Heart, UsersRound, Terminal, LogOut, Crown, CreditCard, Menu, X, Plus, BookOpen } from "lucide-react";
+import { Heart, UsersRound, Terminal, LogOut, Crown, CreditCard, Menu, X, Plus, BookOpen, Music } from "lucide-react";
 import Link from "next/link";
 import { signOut } from "@/app/logout/actions";
 
@@ -113,6 +113,15 @@ export default function MobileNav({ user, isSuperAdmin, isPremium }: MobileNavPr
                 >
                   <Plus className="w-5 h-5 flex-shrink-0" />
                   <span className="font-medium">Novo Grupo</span>
+                </Link>
+
+                <Link
+                  href="/app/audios"
+                  onClick={closeMenu}
+                  className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-100 transition-all duration-200 text-gray-700 hover:text-gray-900 hover:scale-105"
+                >
+                  <Music className="w-5 h-5 flex-shrink-0" />
+                  <span className="font-medium">Biblioteca de Áudio</span>
                 </Link>
 
                 <Link

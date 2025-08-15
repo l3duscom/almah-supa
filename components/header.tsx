@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Heart, UsersRound, Terminal, LogOut, Crown, CreditCard, BookOpen, Plus } from "lucide-react";
+import { Heart, UsersRound, Terminal, LogOut, Crown, CreditCard, BookOpen, Plus, Music } from "lucide-react";
 import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth";
 import { signOut } from "@/app/logout/actions";
@@ -40,6 +40,14 @@ export default async function Header() {
             >
               <Plus className="w-4 h-4" />
               Novo grupo
+            </Link>
+
+            <Link
+              href="/app/audios"
+              className="text-white/90 hover:text-white text-sm font-medium flex gap-2 items-center transition-all duration-200 hover:scale-105"
+            >
+              <Music className="w-4 h-4" />
+              Áudios
             </Link>
 
             <Link
