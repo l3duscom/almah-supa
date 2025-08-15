@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Amigo Secreto",
-  description: "App para sortear Amigo Secreto",
+  title: "Almah",
+  description: "Sua plataforma de bem-estar mental e diário pessoal",
 };
 
 export default function RootLayout({

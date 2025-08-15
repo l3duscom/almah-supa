@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Gift, UsersRound, Terminal, LogOut, Crown, CreditCard, Menu, X, Plus, BookOpen } from "lucide-react";
+import { Heart, UsersRound, Terminal, LogOut, Crown, CreditCard, Menu, X, Plus, BookOpen } from "lucide-react";
 import Link from "next/link";
 import { signOut } from "@/app/logout/actions";
 
@@ -54,8 +54,8 @@ export default function MobileNav({ user, isSuperAdmin, isPremium }: MobileNavPr
               {/* Header */}
               <div className="flex items-center justify-between p-4 border-b">
                 <div className="flex items-center gap-2">
-                  <Gift className="h-5 w-5 text-red-400" />
-                  <span className="font-bold">Amigo Secreto</span>
+                  <Heart className="h-5 w-5 text-emerald-500" />
+                  <span className="font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">Almah</span>
                 </div>
                 <button
                   onClick={closeMenu}

@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Gift, UsersRound, Terminal, LogOut, Crown, CreditCard, BookOpen } from "lucide-react";
+import { Heart, UsersRound, Terminal, LogOut, Crown, CreditCard, BookOpen } from "lucide-react";
 import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth";
 import { signOut } from "@/app/logout/actions";
@@ -17,10 +17,9 @@ export default async function Header() {
       <div className="container mx-auto px-4 py-3">
         <div className="flex justify-between items-center">
           <Link href="/" className="text-xl md:text-2xl font-bold flex items-center gap-2 flex-1">
-            <Gift className="h-5 w-5 md:h-6 md:w-6 text-red-400" />
-            <span>
-              Amigo
-              <span className="font-thin">Secreto</span>
+            <Heart className="h-5 w-5 md:h-6 md:w-6 text-emerald-500" />
+            <span className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+              Almah
             </span>
           </Link>
 
