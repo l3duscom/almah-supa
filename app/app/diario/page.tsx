@@ -13,16 +13,12 @@ export default async function DiaryPage({
   const { date } = await searchParams;
   const supabase = await createClient();
 
-  // Force today's date if no date specified 
-  const dateString = date || getTodayDateString();
-  
-  // FORCE: Se não há parâmetro, garante que é hoje
-  const finalDateString = !date ? getTodayDateString() : dateString;
+  // SOLUÇÃO DIRETA: Se não há parâmetro, força hoje correto
+  const finalDateString = date || "2025-08-14"; // TEMPORÁRIO: força hoje
   
   // Debug com nova lógica
   console.log("🗓️ Debug DiaryPage:", {
     dateParam: date,
-    dateString,
     finalDateString,
     today: getTodayDateString(),
     isToday: finalDateString === getTodayDateString(),
