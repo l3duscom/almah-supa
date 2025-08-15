@@ -7,17 +7,33 @@ import { format } from "date-fns";
 
 /**
  * Obtém a data local atual no formato yyyy-MM-dd
- * Usa métodos nativos para garantir timezone local correto
+ * Funciona tanto no servidor (UTC) quanto no cliente (timezone local)
+ * Especificamente ajustado para timezone do Brasil (GMT-3)
  */
 export function getTodayDateString(): string {
   const now = new Date();
   
-  // Usa métodos nativos para pegar ano, mês e dia no timezone local
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, '0'); // getMonth() é 0-indexed
-  const day = String(now.getDate()).padStart(2, '0');
+  // Detecta se está no servidor (Node.js) ou cliente (browser)
+  const isServer = typeof window === 'undefined';
   
-  return `${year}-${month}-${day}`;
+  if (isServer) {
+    // No servidor: aplica manualmente o offset do Brasil (GMT-3 = -180 minutos)
+    const brazilOffset = -3 * 60; // GMT-3 em minutos
+    const brazilTime = new Date(now.getTime() + (brazilOffset * 60 * 1000));
+    
+    const year = brazilTime.getUTCFullYear();
+    const month = String(brazilTime.getUTCMonth() + 1).padStart(2, '0');
+    const day = String(brazilTime.getUTCDate()).padStart(2, '0');
+    
+    return `${year}-${month}-${day}`;
+  } else {
+    // No cliente: usa métodos nativos que já consideram timezone local
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    
+    return `${year}-${month}-${day}`;
+  }
 }
 
 /**

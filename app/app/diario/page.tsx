@@ -13,8 +13,8 @@ export default async function DiaryPage({
   const { date } = await searchParams;
   const supabase = await createClient();
 
-  // SOLUÇÃO DIRETA: Se não há parâmetro, força hoje correto
-  const finalDateString = date || "2025-08-14"; // TEMPORÁRIO: força hoje
+  // SOLUÇÃO ROBUSTA: Se não há parâmetro, usa função que funciona no servidor e cliente
+  const finalDateString = date || getTodayDateString();
   
   // Debug com nova lógica
   console.log("🗓️ Debug DiaryPage:", {
