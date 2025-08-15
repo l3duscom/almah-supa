@@ -211,7 +211,7 @@ export default function UserAudioLibrary() {
       return;
     }
 
-    // Set the category playlist
+    // Set the category playlist FIRST
     setPlaylist(categoryPlaylist);
 
     // Find and play the selected track

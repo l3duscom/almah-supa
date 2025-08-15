@@ -43,23 +43,12 @@ export const useAudioPlayer = create<AudioPlayerStore>((set, get) => ({
   hidePlayer: () => set({ isVisible: false }),
   
   playTrack: (track) => {
-    const { playlist } = get();
-    
-    // Se a track não está na playlist, adiciona
-    if (!playlist.find(t => t.id === track.id)) {
-      set((state) => ({ 
-        playlist: [...state.playlist, track],
-        currentTrack: track,
-        isPlaying: true,
-        isVisible: true
-      }));
-    } else {
-      set({ 
-        currentTrack: track, 
-        isPlaying: true,
-        isVisible: true 
-      });
-    }
+    // Sempre troca para a nova track sem modificar a playlist atual
+    set({ 
+      currentTrack: track, 
+      isPlaying: true,
+      isVisible: true 
+    });
   },
   
   addToPlaylist: (track) => {

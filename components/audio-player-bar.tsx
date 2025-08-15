@@ -168,11 +168,18 @@ export default function AudioPlayerBar() {
                         <h4 className="text-white font-medium text-sm truncate">
                           {currentTrack.title}
                         </h4>
-                        {currentTrack.artist && (
-                          <p className="text-violet-200 text-xs truncate">
-                            {currentTrack.artist}
-                          </p>
-                        )}
+                        <div className="flex items-center gap-2">
+                          {currentTrack.artist && (
+                            <p className="text-violet-200 text-xs truncate">
+                              {currentTrack.artist}
+                            </p>
+                          )}
+                          {playlist.length > 1 && (
+                            <span className="text-violet-300 text-xs">
+                              • Playlist: {playlist.length} áudios
+                            </span>
+                          )}
+                        </div>
                       </>
                     ) : (
                       <>
@@ -195,7 +202,7 @@ export default function AudioPlayerBar() {
                     size="sm"
                     variant="ghost"
                     onClick={handlePrevious}
-                    className="text-white hover:text-violet-200 hover:bg-violet-600/50 h-8 w-8 p-0"
+                    className="text-white hover:text-violet-200 hover:bg-violet-600/50 h-8 w-8 p-0 disabled:opacity-30"
                     disabled={!currentTrack || playlist.length <= 1}
                   >
                     <SkipBack className="h-4 w-4" />
@@ -218,7 +225,7 @@ export default function AudioPlayerBar() {
                     size="sm"
                     variant="ghost"
                     onClick={handleNext}
-                    className="text-white hover:text-violet-200 hover:bg-violet-600/50 h-8 w-8 p-0"
+                    className="text-white hover:text-violet-200 hover:bg-violet-600/50 h-8 w-8 p-0 disabled:opacity-30"
                     disabled={!currentTrack || playlist.length <= 1}
                   >
                     <SkipForward className="h-4 w-4" />
