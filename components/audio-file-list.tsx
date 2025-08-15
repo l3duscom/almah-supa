@@ -22,12 +22,26 @@ import {
 import { deleteAudioFile } from "@/app/app/console/audio/files/actions";
 import Link from "next/link";
 
+// Client-side version of getAudioUrl
+function getAudioUrl(audioFile: AudioFile): string | null {
+  if (audioFile.file_url) {
+    return audioFile.file_url;
+  }
+  
+  if (audioFile.storage_path) {
+    return `/api/audio/stream/${encodeURIComponent(audioFile.storage_path)}`;
+  }
+  
+  return null;
+}
+
 interface AudioFile {
   id: string;
   title: string;
   artist: string | null;
   description: string | null;
-  file_url: string;
+  file_url: string | null;
+  storage_path: string | null;
   duration_seconds: number | null;
   file_size_bytes: number | null;
   file_format: string | null;
@@ -97,7 +111,15 @@ export default function AudioFileList({
     }
   };
 
-  const handlePlayPause = (fileId: string, fileUrl: string) => {
+  const handlePlayPause = (audioFile: AudioFile) => {
+    const fileId = audioFile.id;
+    const fileUrl = getAudioUrl(audioFile);
+    
+    if (!fileUrl) {
+      alert("URL do arquivo não disponível");
+      return;
+    }
+    
     // Stop all other audios
     Object.values(audioElements).forEach(audio => {
       if (!audio.paused) {
@@ -184,7 +206,7 @@ export default function AudioFileList({
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => handlePlayPause(file.id, file.file_url)}
+                  onClick={() => handlePlayPause(file)}
                   className="flex-shrink-0"
                 >
                   {playingId === file.id ? (
@@ -317,14 +339,16 @@ export default function AudioFileList({
                     <span>
                       Criado em {new Date(file.created_at).toLocaleDateString('pt-BR')}
                     </span>
-                    <Link 
-                      href={file.file_url} 
-                      target="_blank" 
-                      className="inline-flex items-center gap-1 hover:text-blue-600"
-                    >
-                      <Download className="h-3 w-3" />
-                      Download
-                    </Link>
+                    {getAudioUrl(file) && (
+                      <Link 
+                        href={getAudioUrl(file)!} 
+                        target="_blank" 
+                        className="inline-flex items-center gap-1 hover:text-blue-600"
+                      >
+                        <Download className="h-3 w-3" />
+                        Download
+                      </Link>
+                    )}
                   </div>
                 </div>
               </div>
