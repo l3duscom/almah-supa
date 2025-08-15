@@ -5,7 +5,27 @@ import { usePathname } from "next/navigation";
 import { useAudioPlayer } from "@/hooks/use-audio-player";
 import AudioPlayerBar from "@/components/audio-player-bar";
 import { createClient } from "@/utils/supabase/client";
-import { getAudioUrl, type AudioFile } from "@/lib/audio";
+
+interface AudioFile {
+  id: string;
+  title: string;
+  artist: string | null;
+  file_url: string | null;
+  storage_path: string | null;
+}
+
+// Client-side version of getAudioUrl
+function getAudioUrl(audioFile: AudioFile): string | null {
+  if (audioFile.file_url) {
+    return audioFile.file_url;
+  }
+  
+  if (audioFile.storage_path) {
+    return `/api/audio/stream/${encodeURIComponent(audioFile.storage_path)}`;
+  }
+  
+  return null;
+}
 
 export default function RootLayoutClient() {
   const { setPlaylist } = useAudioPlayer();
@@ -102,7 +122,7 @@ export default function RootLayoutClient() {
                 url: audioUrl
               };
             })
-            .filter(Boolean); // Remove null entries
+            .filter((track): track is NonNullable<typeof track> => track !== null); // Remove null entries
           
           setPlaylist(playlist);
         } else {

@@ -3,11 +3,12 @@ import { createClient } from '@/utils/supabase/server';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { path: string[] } }
+  { params }: { params: Promise<{ path: string[] }> }
 ) {
   try {
     const supabase = await createClient();
-    const storagePath = decodeURIComponent(params.path.join('/'));
+    const resolvedParams = await params;
+    const storagePath = decodeURIComponent(resolvedParams.path.join('/'));
 
     // Get signed URL for the file
     const { data, error } = await supabase.storage
