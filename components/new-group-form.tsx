@@ -13,7 +13,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { useToast } from "@/hooks/use-toast";
+import { useNotification } from "@/hooks/use-notification";
 import { Loader, Mail, Trash2 } from "lucide-react";
 import { useActionState, useEffect, useState } from "react";
 
@@ -27,7 +27,7 @@ export default function NewGroupForm({
 }: {
   loggedUser: { email: string; id: string };
 }) {
-  const { toast } = useToast();
+  const { showNotification } = useNotification();
   const [participants, setParticipants] = useState<Participant[]>([
     { name: "", email: loggedUser.email },
   ]);
@@ -62,9 +62,10 @@ export default function NewGroupForm({
 
   useEffect(() => {
     if (state.success === false) {
-      toast({
-        variant: "destructive",
-        description: state.message,
+      showNotification({
+        variant: "error",
+        description: state.message || "Ocorreu um erro inesperado",
+        title: "Erro ao criar grupo",
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
