@@ -52,7 +52,7 @@ export async function addDiaryEntry(
       pageId = existingPage.id;
     } else {
       // Check if user can create more pages
-      const { canCreate, currentCount, limit } = await canUserCreateDiaryPage(
+      const { canCreate, limit } = await canUserCreateDiaryPage(
         user.id,
         user.plan || "free"
       );
