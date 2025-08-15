@@ -31,8 +31,8 @@ export default async function AudioManagementPage() {
         is_premium,
         is_active,
         play_count,
-        audio_categories (name),
-        audio_moods (name)
+        category_id,
+        mood_id
       `)
       .order("created_at", { ascending: false })
       .limit(10)
@@ -40,7 +40,16 @@ export default async function AudioManagementPage() {
 
   const categories = categoriesResult.data || [];
   const moods = moodsResult.data || [];
-  const recentFiles = filesResult.data || [];
+  const recentFiles = (filesResult.data || []) as Array<{
+    id: string;
+    title: string;
+    artist: string | null;
+    is_premium: boolean;
+    is_active: boolean;
+    play_count: number;
+    category_id: string | null;
+    mood_id: string | null;
+  }>;
 
   // Calculate statistics
   const totalCategories = categories.length;
@@ -220,11 +229,15 @@ export default async function AudioManagementPage() {
                     <p className="text-sm text-muted-foreground">por {file.artist}</p>
                   )}
                   <div className="flex items-center gap-2 mt-2">
-                    {file.audio_categories?.name && (
-                      <Badge variant="secondary">{file.audio_categories.name}</Badge>
+                    {file.category_id && (
+                      <Badge variant="secondary">
+                        {categories.find(c => c.id === file.category_id)?.name || 'Categoria'}
+                      </Badge>
                     )}
-                    {file.audio_moods?.name && (
-                      <Badge variant="outline">{file.audio_moods.name}</Badge>
+                    {file.mood_id && (
+                      <Badge variant="outline">
+                        {moods.find(m => m.id === file.mood_id)?.name || 'Humor'}
+                      </Badge>
                     )}
                     {file.is_premium && (
                       <Badge className="bg-yellow-500">Premium</Badge>
