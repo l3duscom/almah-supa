@@ -81,7 +81,7 @@ export default function UserAudioLibrary() {
   const [userPlan, setUserPlan] = useState<'free' | 'premium'>('free');
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   
-  const { playTrack, currentTrack, isPlaying, togglePlay } = useAudioPlayer();
+  const { playTrack, currentTrack, isPlaying, togglePlay, setPlaylist } = useAudioPlayer();
 
   useEffect(() => {
     loadAudioData();
@@ -146,6 +146,50 @@ export default function UserAudioLibrary() {
     }
   };
 
+  interface PlaylistTrack {
+    id: string;
+    title: string;
+    artist: string;
+    url: string;
+    duration?: number;
+  }
+
+  const createCategoryPlaylist = (selectedAudio: AudioFile): PlaylistTrack[] => {
+    // Get all audios from the same category that user can access
+    const categoryAudios = audioFiles.filter(audio => {
+      // Same category
+      const sameCategory = audio.category?.id === selectedAudio.category?.id;
+      
+      // User can access (not premium or user is premium)
+      const canAccess = !audio.is_premium || userPlan === 'premium';
+      
+      // Audio is active
+      const isActive = audio.is_active;
+      
+      return sameCategory && canAccess && isActive;
+    });
+
+    // Convert to player format and sort by title for consistent order
+    const validTracks: PlaylistTrack[] = [];
+    
+    categoryAudios
+      .sort((a, b) => a.title.localeCompare(b.title))
+      .forEach(audio => {
+        const audioUrl = getAudioUrl(audio);
+        if (audioUrl) {
+          validTracks.push({
+            id: audio.id,
+            title: audio.title,
+            artist: audio.artist || "Almah Wellness",
+            url: audioUrl,
+            duration: audio.duration_seconds || undefined
+          });
+        }
+      });
+    
+    return validTracks;
+  };
+
   const handlePlayAudio = (audioFile: AudioFile) => {
     if (audioFile.is_premium && userPlan === 'free') {
       setShowUpgradeModal(true);
@@ -159,20 +203,22 @@ export default function UserAudioLibrary() {
       return;
     }
 
-    // Different track - load and play new track
-    const audioUrl = getAudioUrl(audioFile);
-    if (!audioUrl) {
-      console.error("No URL available for audio file");
+    // Create category-based playlist
+    const categoryPlaylist = createCategoryPlaylist(audioFile);
+    
+    if (categoryPlaylist.length === 0) {
+      console.error("No accessible audios in this category");
       return;
     }
 
-    playTrack({
-      id: audioFile.id,
-      title: audioFile.title,
-      artist: audioFile.artist || "Almah Wellness",
-      url: audioUrl,
-      duration: audioFile.duration_seconds || undefined
-    });
+    // Set the category playlist
+    setPlaylist(categoryPlaylist);
+
+    // Find and play the selected track
+    const selectedTrack = categoryPlaylist.find(track => track.id === audioFile.id);
+    if (selectedTrack) {
+      playTrack(selectedTrack);
+    }
   };
 
 
@@ -271,6 +317,11 @@ export default function UserAudioLibrary() {
                   onPlay={() => handlePlayAudio(audio)}
                   isPremium={false}
                   userPlan={userPlan}
+                  categoryCount={audioFiles.filter(a => 
+                    a.category?.id === audio.category?.id && 
+                    a.is_active && 
+                    (!a.is_premium || userPlan === 'premium')
+                  ).length}
                 />
               ))}
             </div>
@@ -303,6 +354,11 @@ export default function UserAudioLibrary() {
                   onPlay={() => handlePlayAudio(audio)}
                   isPremium={true}
                   userPlan={userPlan}
+                  categoryCount={audioFiles.filter(a => 
+                    a.category?.id === audio.category?.id && 
+                    a.is_active && 
+                    (!a.is_premium || userPlan === 'premium')
+                  ).length}
                 />
               ))}
             </div>
@@ -338,9 +394,10 @@ interface AudioCardProps {
   onPlay: () => void;
   isPremium: boolean;
   userPlan: 'free' | 'premium';
+  categoryCount: number;
 }
 
-function AudioCard({ audio, isPlaying, onPlay, isPremium, userPlan }: AudioCardProps) {
+function AudioCard({ audio, isPlaying, onPlay, isPremium, userPlan, categoryCount }: AudioCardProps) {
   const canPlay = !isPremium || userPlan === 'premium';
   
   return (
@@ -349,17 +406,25 @@ function AudioCard({ audio, isPlaying, onPlay, isPremium, userPlan }: AudioCardP
         {/* Header with category and premium badge */}
         <div className="flex items-center justify-between">
           {audio.category && (
-            <Badge 
-              variant="outline" 
-              className="text-xs"
-              style={{ 
-                borderColor: audio.category.color || undefined,
-                color: audio.category.color || undefined 
-              }}
-            >
-              {audio.category.icon && <span className="mr-1">{audio.category.icon}</span>}
-              {audio.category.name}
-            </Badge>
+            <div className="flex flex-col items-start gap-1">
+              <Badge 
+                variant="outline" 
+                className="text-xs"
+                style={{ 
+                  borderColor: audio.category.color || undefined,
+                  color: audio.category.color || undefined 
+                }}
+              >
+                {audio.category.icon && <span className="mr-1">{audio.category.icon}</span>}
+                {audio.category.name}
+              </Badge>
+              {categoryCount > 1 && (
+                <span className="text-xs text-muted-foreground flex items-center gap-1">
+                  <Music className="h-3 w-3" />
+                  Playlist: {categoryCount} áudios
+                </span>
+              )}
+            </div>
           )}
           {isPremium && (
             <Badge className="bg-gradient-to-r from-yellow-400 to-yellow-600">
