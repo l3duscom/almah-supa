@@ -17,17 +17,28 @@ export default async function DiaryPage({
   const finalDateString = date || getTodayDateString();
   
 
-  // Get diary entries for the selected date
-  const { data: entries, error } = await supabase
-    .from("diary_entries")
-    .select("*")
+  // Get diary page and entries for the selected date
+  const { data: page } = await supabase
+    .from("diary_pages")
+    .select(`
+      id,
+      title,
+      date,
+      created_at,
+      diary_entries (
+        id,
+        content,
+        mood,
+        created_at,
+        updated_at
+      )
+    `)
     .eq("user_id", user.id)
     .eq("date", finalDateString)
-    .order("created_at", { ascending: true });
+    .single();
 
-  if (error) {
-    console.error("Error fetching diary entries:", error);
-  }
+  // Extract entries from page or use empty array
+  const entries = page?.diary_entries || [];
 
 
   return (

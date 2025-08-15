@@ -3,6 +3,7 @@
 import { createClient } from "@/utils/supabase/server";
 import { requireAuth } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
+import { canUserCreateDiaryPage } from "@/lib/diary";
 
 export type DiaryActionState = {
   success: boolean;
@@ -36,6 +37,56 @@ export async function addDiaryEntry(
       };
     }
 
+    // Find or create diary page for this date
+    let pageId: string;
+    
+    // First, try to find existing page
+    const { data: existingPage } = await supabase
+      .from("diary_pages")
+      .select("id")
+      .eq("user_id", user.id)
+      .eq("date", date)
+      .single();
+
+    if (existingPage) {
+      pageId = existingPage.id;
+    } else {
+      // Check if user can create more pages
+      const { canCreate, currentCount, limit } = await canUserCreateDiaryPage(
+        user.id,
+        user.plan || "free"
+      );
+
+      if (!canCreate) {
+        return {
+          success: false,
+          message: `Você atingiu o limite de ${limit} páginas do seu plano. Faça upgrade para continuar escrevendo.`,
+        };
+      }
+
+      // Create new page for this date
+      const { data: newPage, error: pageError } = await supabase
+        .from("diary_pages")
+        .insert({
+          user_id: user.id,
+          date,
+          title: `Diário de ${new Date(date).toLocaleDateString('pt-BR')}`,
+        })
+        .select("id")
+        .single();
+
+      if (pageError) {
+        console.error("Error creating diary page:", pageError);
+        return {
+          success: false,
+          message: "Erro ao criar página do diário. Tente novamente.",
+        };
+      }
+
+      pageId = newPage.id;
+    }
+
+    // Now create the entry with page reference
     const { data, error } = await supabase
       .from("diary_entries")
       .insert({
@@ -43,6 +94,7 @@ export async function addDiaryEntry(
         content: content.trim(),
         mood,
         date,
+        page_id: pageId,
       })
       .select()
       .single();
