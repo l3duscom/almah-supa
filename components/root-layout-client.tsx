@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 import { useAudioPlayer } from "@/hooks/use-audio-player";
 import AudioPlayerBar from "@/components/audio-player-bar";
 import { createClient } from "@/utils/supabase/client";
-import { getCurrentUser } from "@/lib/auth";
 
 export default function RootLayoutClient() {
   const { setPlaylist } = useAudioPlayer();
