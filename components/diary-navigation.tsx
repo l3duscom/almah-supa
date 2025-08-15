@@ -35,21 +35,24 @@ export default function DiaryNavigation({ currentDate }: DiaryNavigationProps) {
         </span>
       </div>
 
-      <Button 
-        asChild 
-        variant="outline" 
-        size="sm"
-        disabled={isFuture}
-        className={isFuture ? "opacity-50 cursor-not-allowed" : ""}
-      >
-        <Link 
-          href={isFuture ? "#" : `/app/diario?date=${format(tomorrow, "yyyy-MM-dd")}`}
-          className={isFuture ? "pointer-events-none" : ""}
+      {!isFuture ? (
+        <Button asChild variant="outline" size="sm">
+          <Link href={`/app/diario?date=${format(tomorrow, "yyyy-MM-dd")}`}>
+            {format(tomorrow, "dd/MM")}
+            <ChevronRight className="h-4 w-4 ml-1" />
+          </Link>
+        </Button>
+      ) : (
+        <Button 
+          variant="outline" 
+          size="sm"
+          disabled
+          className="opacity-50 cursor-not-allowed"
         >
           {format(tomorrow, "dd/MM")}
           <ChevronRight className="h-4 w-4 ml-1" />
-        </Link>
-      </Button>
+        </Button>
+      )}
     </div>
   );
 }

@@ -8,10 +8,13 @@ import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { addDiaryEntry, DiaryActionState } from "@/app/app/diario/actions";
 import { format } from "date-fns";
-import { Heart, Sparkles, Plus, Calendar, Edit3 } from "lucide-react";
+import { Heart, Sparkles, Plus, Calendar, Edit3, ArrowRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import Link from "next/link";
 import MoodSelector from "./mood-selector";
 import DiaryEntry from "./diary-entry";
+import WellnessAnimation from "./wellness-animation";
+import MoodBoostButton from "./mood-boost-button";
 
 interface DiaryEntry {
   id: string;
@@ -46,6 +49,7 @@ export default function DiaryInterface({
   const [selectedMood, setSelectedMood] = useState<number | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
+  const [showWellnessAnimation, setShowWellnessAnimation] = useState(false);
 
   const [state, formAction, pending] = useActionState<DiaryActionState, FormData>(
     addDiaryEntry,
@@ -63,14 +67,19 @@ export default function DiaryInterface({
       setSelectedMood(null);
       setIsWriting(false);
       
-      // Show success animation
-      const randomMessage = supportiveMessages[Math.floor(Math.random() * supportiveMessages.length)];
-      setSuccessMessage(randomMessage);
-      setShowSuccess(true);
+      // Show wellness animation first
+      setShowWellnessAnimation(true);
       
+      // Then show success message
       setTimeout(() => {
-        setShowSuccess(false);
-      }, 4000);
+        const randomMessage = supportiveMessages[Math.floor(Math.random() * supportiveMessages.length)];
+        setSuccessMessage(randomMessage);
+        setShowSuccess(true);
+        
+        setTimeout(() => {
+          setShowSuccess(false);
+        }, 4000);
+      }, 1500);
     }
   }, [state.success, pending]);
 
@@ -82,33 +91,85 @@ export default function DiaryInterface({
 
   return (
     <div className="space-y-6">
-      {/* Success Animation */}
+      {/* Wellness Animation */}
+      <WellnessAnimation 
+        show={showWellnessAnimation} 
+        onComplete={() => setShowWellnessAnimation(false)}
+      />
+      {/* Enhanced Success Animation */}
       <AnimatePresence>
         {showSuccess && (
           <motion.div
-            initial={{ opacity: 0, y: -50, scale: 0.8 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
+            initial={{ opacity: 0, y: -100, scale: 0.5 }}
+            animate={{ 
+              opacity: 1, 
+              y: 0, 
+              scale: [0.5, 1.1, 1],
+            }}
             exit={{ opacity: 0, y: -50, scale: 0.8 }}
-            className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50"
+            transition={{ 
+              duration: 0.8,
+              scale: { times: [0, 0.5, 1], duration: 0.8 }
+            }}
+            className="fixed top-8 left-1/2 transform -translate-x-1/2 z-50"
           >
-            <Card className="bg-gradient-to-r from-green-50 to-emerald-50 border-green-200 shadow-lg">
-              <CardContent className="p-4 flex items-center gap-3">
+            <motion.div
+              animate={{ 
+                boxShadow: [
+                  "0 0 20px rgba(34, 197, 94, 0.3)",
+                  "0 0 40px rgba(34, 197, 94, 0.6)",
+                  "0 0 20px rgba(34, 197, 94, 0.3)"
+                ]
+              }}
+              transition={{ duration: 2, repeat: 2 }}
+            >
+              <Card className="bg-gradient-to-r from-green-50 via-emerald-50 to-teal-50 border-green-200 shadow-2xl overflow-hidden relative">
                 <motion.div
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                >
-                  <Sparkles className="h-6 w-6 text-green-600" />
-                </motion.div>
-                <span className="text-green-800 font-medium">{successMessage}</span>
-                <Heart className="h-5 w-5 text-pink-500" />
-              </CardContent>
-            </Card>
+                  initial={{ x: "-100%" }}
+                  animate={{ x: "100%" }}
+                  transition={{ duration: 1.5, delay: 0.5 }}
+                  className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
+                />
+                <CardContent className="p-6 flex items-center gap-4">
+                  <motion.div
+                    animate={{ 
+                      rotate: 360,
+                      scale: [1, 1.2, 1],
+                    }}
+                    transition={{ 
+                      rotate: { duration: 2, repeat: Infinity, ease: "linear" },
+                      scale: { duration: 1, repeat: 2 }
+                    }}
+                  >
+                    <Sparkles className="h-8 w-8 text-green-600" />
+                  </motion.div>
+                  <div className="flex-1">
+                    <motion.span 
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: 0.3 }}
+                      className="text-green-800 font-semibold text-lg block"
+                    >
+                      {successMessage}
+                    </motion.span>
+                  </div>
+                  <motion.div
+                    animate={{ 
+                      scale: [1, 1.3, 1],
+                    }}
+                    transition={{ duration: 0.8, repeat: 3 }}
+                  >
+                    <Heart className="h-6 w-6 text-pink-500" />
+                  </motion.div>
+                </CardContent>
+              </Card>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
 
       {/* Date Navigation */}
-      <div className="flex justify-center">
+      <div className="flex justify-center items-center gap-4">
         <Card className="w-fit">
           <CardContent className="p-4 flex items-center gap-2">
             <Calendar className="h-4 w-4 text-muted-foreground" />
@@ -122,6 +183,8 @@ export default function DiaryInterface({
             )}
           </CardContent>
         </Card>
+        
+        <MoodBoostButton />
       </div>
 
       {/* Write New Entry */}
@@ -238,13 +301,19 @@ export default function DiaryInterface({
 
         {entries.length === 0 && !isToday && (
           <Card className="text-center p-8">
-            <CardContent>
+            <CardContent className="space-y-4">
               <p className="text-muted-foreground">
                 Você não escreveu nada neste dia.
               </p>
-              <p className="text-sm text-muted-foreground mt-2">
+              <p className="text-sm text-muted-foreground">
                 Que tal começar hoje? 😊
               </p>
+              <Button asChild className="mt-4">
+                <Link href="/app/diario" className="flex items-center gap-2">
+                  Ir para hoje
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </Button>
             </CardContent>
           </Card>
         )}
