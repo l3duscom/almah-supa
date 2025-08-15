@@ -49,7 +49,7 @@ export default function MobileNav({ user, isSuperAdmin, isPremium }: MobileNavPr
           />
           
           {/* Menu Panel */}
-          <div className="fixed top-0 right-0 h-full w-72 sm:w-80 bg-violet-600 shadow-xl z-50 transform transition-transform duration-300 ease-out">
+          <div className="fixed top-0 right-0 h-full w-72 sm:w-80 bg-violet-600 backdrop-blur-sm shadow-xl z-50 transform transition-transform duration-300 ease-out border-l border-violet-500">
             <div className="flex flex-col h-full">
               {/* Header */}
               <div className="flex items-center justify-between p-4 border-b border-violet-400/30">
