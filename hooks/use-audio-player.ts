@@ -15,9 +15,10 @@ interface AudioPlayerStore {
   currentTrack: AudioTrack | null;
   isPlaying: boolean;
   isVisible: boolean;
+  currentCategoryId: string | null;
   
   // Actions
-  setPlaylist: (tracks: AudioTrack[]) => void;
+  setPlaylist: (tracks: AudioTrack[], categoryId?: string) => void;
   setCurrentTrack: (track: AudioTrack) => void;
   togglePlay: () => void;
   showPlayer: () => void;
@@ -31,8 +32,12 @@ export const useAudioPlayer = create<AudioPlayerStore>((set, get) => ({
   currentTrack: null,
   isPlaying: false,
   isVisible: true,
+  currentCategoryId: null,
 
-  setPlaylist: (tracks) => set({ playlist: tracks }),
+  setPlaylist: (tracks, categoryId) => set({ 
+    playlist: tracks, 
+    currentCategoryId: categoryId || null 
+  }),
   
   setCurrentTrack: (track) => set({ currentTrack: track }),
   

@@ -38,7 +38,11 @@ export default function AudioPlayerBar() {
   const handleNext = useCallback(() => {
     if (!currentTrack || playlist.length === 0) return;
     
+    // Find current track in playlist
     const currentIndex = playlist.findIndex(track => track.id === currentTrack.id);
+    if (currentIndex === -1) return;
+    
+    // Navigate to next track in the same category playlist (cyclic)
     const nextIndex = (currentIndex + 1) % playlist.length;
     setCurrentTrack(playlist[nextIndex]);
   }, [currentTrack, playlist, setCurrentTrack]);
@@ -46,7 +50,11 @@ export default function AudioPlayerBar() {
   const handlePrevious = useCallback(() => {
     if (!currentTrack || playlist.length === 0) return;
     
+    // Find current track in playlist
     const currentIndex = playlist.findIndex(track => track.id === currentTrack.id);
+    if (currentIndex === -1) return;
+    
+    // Navigate to previous track in the same category playlist (cyclic)
     const prevIndex = currentIndex === 0 ? playlist.length - 1 : currentIndex - 1;
     setCurrentTrack(playlist[prevIndex]);
   }, [currentTrack, playlist, setCurrentTrack]);

@@ -211,8 +211,8 @@ export default function UserAudioLibrary() {
       return;
     }
 
-    // Set the category playlist FIRST
-    setPlaylist(categoryPlaylist);
+    // Set the category playlist FIRST with category ID
+    setPlaylist(categoryPlaylist, audioFile.category?.id);
 
     // Find and play the selected track
     const selectedTrack = categoryPlaylist.find(track => track.id === audioFile.id);
