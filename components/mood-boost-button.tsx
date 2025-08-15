@@ -1,8 +1,9 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Heart } from "lucide-react";
+import { Heart, Play } from "lucide-react";
 import { useNotification } from "@/hooks/use-notification";
+import { useAudioPlayer } from "@/hooks/use-audio-player";
 
 const boostMessages = [
   "Você é incrível e capaz de superar qualquer desafio! ✨",
@@ -19,9 +20,18 @@ const boostMessages = [
 
 export default function MoodBoostButton() {
   const { showNotification } = useNotification();
+  const { playTrack } = useAudioPlayer();
 
   const handleBoost = () => {
     const randomMessage = boostMessages[Math.floor(Math.random() * boostMessages.length)];
+    
+    // Tocar áudio relaxante
+    playTrack({
+      id: "meditation-1",
+      title: "Meditação Guiada - Respiração",
+      artist: "Almah Wellness",
+      url: "/audio/meditation-breathing.mp3"
+    });
     
     showNotification({
       variant: "info",

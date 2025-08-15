@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import NotificationProvider from "@/components/notification-provider";
 import CelestialBackground from "@/components/celestial-background";
+import RootLayoutClient from "@/components/root-layout-client";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,10 +28,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased pb-20`}
       >
         <CelestialBackground />
         {children}
+        <RootLayoutClient />
         <NotificationProvider />
       </body>
     </html>
