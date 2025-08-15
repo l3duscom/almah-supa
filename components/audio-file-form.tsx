@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { createAudioFile, AudioFileActionState } from "@/app/app/console/audio/files/actions";
-import { Loader2, Upload, Music, Info } from "lucide-react";
+import { Loader2, Upload, Info } from "lucide-react";
 
 interface Category {
   id: string;

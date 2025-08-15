@@ -201,7 +201,7 @@ export default async function AudioFilesPage({
                 Arquivos de Áudio
                 {params.search && (
                   <span className="text-sm font-normal text-muted-foreground ml-2">
-                    - Resultados para "{params.search}"
+                    - Resultados para &quot;{params.search}&quot;
                   </span>
                 )}
               </CardTitle>
