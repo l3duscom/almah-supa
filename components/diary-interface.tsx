@@ -9,6 +9,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { addDiaryEntry, DiaryActionState } from "@/app/app/diario/actions";
 import { format } from "date-fns";
 import { Heart, Sparkles, Plus, Calendar, Edit3, ArrowRight } from "lucide-react";
+import { getTodayDateString, isToday as isTodayUtil } from "@/lib/date-utils";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import MoodSelector from "./mood-selector";
@@ -87,16 +88,17 @@ export default function DiaryInterface({
     formAction(formData);
   };
 
-  // Simplifica: só compara com hoje usando date-fns
-  const today = format(new Date(), "yyyy-MM-dd");
-  const isToday = currentDate === today;
+  // Usa função utilitária para detectar hoje corretamente
+  const today = getTodayDateString();
+  const isToday = isTodayUtil(currentDate);
   
-  // Debug simples
+  // Debug com nova lógica
   console.log("🔍 Debug DiaryInterface:", {
     currentDate,
     today,
     isToday,
-    areEqual: currentDate === today
+    directComparison: currentDate === today,
+    timezoneOffset: new Date().getTimezoneOffset()
   });
 
   return (

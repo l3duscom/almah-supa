@@ -2,7 +2,7 @@ import { requireAuth } from "@/lib/auth";
 import { createClient } from "@/utils/supabase/server";
 import DiaryInterface from "@/components/diary-interface";
 import DiaryNavigation from "@/components/diary-navigation";
-import { format } from "date-fns";
+import { getTodayDateString } from "@/lib/date-utils";
 
 export default async function DiaryPage({
   searchParams,
@@ -13,15 +13,16 @@ export default async function DiaryPage({
   const { date } = await searchParams;
   const supabase = await createClient();
 
-  // Use current date if no date specified - SIMPLIFICADO
-  const dateString = date || format(new Date(), "yyyy-MM-dd");
+  // Use today's date if no date specified - usando UTC + offset local
+  const dateString = date || getTodayDateString();
   
-  // Debug temporário
-  console.log("Debug DiaryPage:", {
+  // Debug com nova lógica
+  console.log("🗓️ Debug DiaryPage:", {
     dateParam: date,
     dateString,
-    today: format(new Date(), "yyyy-MM-dd"),
-    isToday: dateString === format(new Date(), "yyyy-MM-dd")
+    today: getTodayDateString(),
+    isToday: dateString === getTodayDateString(),
+    timezoneOffset: new Date().getTimezoneOffset()
   });
 
   // Get diary entries for the selected date
