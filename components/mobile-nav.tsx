@@ -86,7 +86,7 @@ export default function MobileNav({ user, isSuperAdmin, isPremium }: MobileNavPr
               </div>
 
               {/* Navigation Links */}
-              <nav className="flex-1 p-4 space-y-2">
+              <nav className="flex-1 p-4 space-y-2 bg-white">
                 {/* Botão principal - Meu Diário */}
                 <Link
                   href="/app/diario"
