@@ -36,20 +36,39 @@ export default function RootLayoutClient() {
   const isProtectedRoute = pathname.startsWith('/app');
 
   useEffect(() => {
+    let isMounted = true;
+    
     async function loadAudioFiles() {
       if (!isProtectedRoute) {
-        setIsLoading(false);
+        if (isMounted) setIsLoading(false);
         return;
       }
 
       try {
         const supabase = createClient();
         
-        // Get user to check plan
-        const { data: { user } } = await supabase.auth.getUser();
+        // Get user with proper error handling
+        const { data: { user }, error: userError } = await supabase.auth.getUser();
+        
+        if (!isMounted) return; // Component unmounted, abort
+        
+        if (userError) {
+          console.error("Error getting user:", userError);
+          // Set fallback playlist and continue
+          setPlaylist([
+            {
+              id: "fallback-1",
+              title: "Meditação Guiada - Respiração",
+              artist: "Almah Wellness",
+              url: "/audio/meditation-breathing.mp3"
+            }
+          ]);
+          setIsLoading(false);
+          return;
+        }
         
         if (!user) {
-          setIsLoading(false);
+          if (isMounted) setIsLoading(false);
           return;
         }
 
@@ -84,6 +103,8 @@ export default function RootLayoutClient() {
 
         if (error) {
           console.error("Error fetching audio files:", error);
+          if (!isMounted) return;
+          
           // Fallback to example playlist
           setPlaylist([
             {
@@ -124,8 +145,11 @@ export default function RootLayoutClient() {
             })
             .filter((track): track is NonNullable<typeof track> => track !== null); // Remove null entries
           
+          if (!isMounted) return;
           setPlaylist(playlist);
         } else {
+          if (!isMounted) return;
+          
           // No audio files found, use fallback
           setPlaylist([
             {
@@ -137,6 +161,8 @@ export default function RootLayoutClient() {
           ]);
         }
       } catch (error) {
+        if (!isMounted) return;
+        
         console.error("Error loading audio files:", error);
         // Fallback playlist on error
         setPlaylist([
@@ -148,11 +174,15 @@ export default function RootLayoutClient() {
           }
         ]);
       } finally {
-        setIsLoading(false);
+        if (isMounted) setIsLoading(false);
       }
     }
 
     loadAudioFiles();
+    
+    return () => {
+      isMounted = false;
+    };
   }, [isProtectedRoute, setPlaylist]);
 
   // Só renderizar o player em rotas protegidas e quando não estiver carregando
