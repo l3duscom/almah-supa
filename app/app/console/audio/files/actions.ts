@@ -31,14 +31,14 @@ export async function createAudioFile(
     const tagsString = formData.get("tags") as string;
     const isPremium = formData.get("is_premium") === "true";
 
-    if (!title.trim()) {
+    if (!title?.trim()) {
       return {
         success: false,
         message: "Título é obrigatório.",
       };
     }
 
-    if (!fileUrl.trim() && !storagePath.trim()) {
+    if (!(fileUrl?.trim()) && !(storagePath?.trim())) {
       return {
         success: false,
         message: "URL do arquivo ou upload é obrigatório.",
@@ -46,21 +46,21 @@ export async function createAudioFile(
     }
 
     // Parse tags
-    const tags = tagsString
+    const tags = tagsString?.trim()
       ? tagsString.split(",").map(tag => tag.trim()).filter(tag => tag.length > 0)
       : [];
 
     const { data, error } = await supabase
       .from("audio_files")
       .insert({
-        title: title.trim(),
-        artist: artist.trim() || null,
-        description: description.trim() || null,
-        file_url: fileUrl.trim() || null,
-        storage_path: storagePath.trim() || null,
+        title: title?.trim() || "",
+        artist: artist?.trim() || null,
+        description: description?.trim() || null,
+        file_url: fileUrl?.trim() || null,
+        storage_path: storagePath?.trim() || null,
         duration_seconds: durationSeconds,
         file_size_bytes: fileSizeBytes,
-        file_format: fileFormat.trim() || null,
+        file_format: fileFormat?.trim() || null,
         category_id: categoryId || null,
         mood_id: moodId || null,
         tags: tags.length > 0 ? tags : null,
@@ -117,14 +117,14 @@ export async function updateAudioFile(
     const isPremium = formData.get("is_premium") === "true";
     const isActive = formData.get("is_active") === "true";
 
-    if (!title.trim()) {
+    if (!title?.trim()) {
       return {
         success: false,
         message: "Título é obrigatório.",
       };
     }
 
-    if (!fileUrl.trim() && !storagePath.trim()) {
+    if (!(fileUrl?.trim()) && !(storagePath?.trim())) {
       return {
         success: false,
         message: "URL do arquivo ou upload é obrigatório.",
@@ -132,21 +132,21 @@ export async function updateAudioFile(
     }
 
     // Parse tags
-    const tags = tagsString
+    const tags = tagsString?.trim()
       ? tagsString.split(",").map(tag => tag.trim()).filter(tag => tag.length > 0)
       : [];
 
     const { error } = await supabase
       .from("audio_files")
       .update({
-        title: title.trim(),
-        artist: artist.trim() || null,
-        description: description.trim() || null,
-        file_url: fileUrl.trim() || null,
-        storage_path: storagePath.trim() || null,
+        title: title?.trim() || "",
+        artist: artist?.trim() || null,
+        description: description?.trim() || null,
+        file_url: fileUrl?.trim() || null,
+        storage_path: storagePath?.trim() || null,
         duration_seconds: durationSeconds,
         file_size_bytes: fileSizeBytes,
-        file_format: fileFormat.trim() || null,
+        file_format: fileFormat?.trim() || null,
         category_id: categoryId || null,
         mood_id: moodId || null,
         tags: tags.length > 0 ? tags : null,
