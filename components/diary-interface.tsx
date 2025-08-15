@@ -16,6 +16,7 @@ import MoodSelector from "./mood-selector";
 import DiaryEntry from "./diary-entry";
 import WellnessAnimation from "./wellness-animation";
 import MoodBoostButton from "./mood-boost-button";
+import { useNotification } from "@/hooks/use-notification";
 
 interface DiaryEntry {
   id: string;
@@ -48,9 +49,8 @@ export default function DiaryInterface({
   const [isWriting, setIsWriting] = useState(false);
   const [newEntry, setNewEntry] = useState("");
   const [selectedMood, setSelectedMood] = useState<number | null>(null);
-  const [showSuccess, setShowSuccess] = useState(false);
-  const [successMessage, setSuccessMessage] = useState("");
   const [showWellnessAnimation, setShowWellnessAnimation] = useState(false);
+  const { showNotification } = useNotification();
 
   const [state, formAction, pending] = useActionState<DiaryActionState, FormData>(
     addDiaryEntry,
@@ -71,18 +71,24 @@ export default function DiaryInterface({
       // Show wellness animation first
       setShowWellnessAnimation(true);
       
-      // Then show success message
+      // Then show success notification
       setTimeout(() => {
         const randomMessage = supportiveMessages[Math.floor(Math.random() * supportiveMessages.length)];
-        setSuccessMessage(randomMessage);
-        setShowSuccess(true);
-        
-        setTimeout(() => {
-          setShowSuccess(false);
-        }, 4000);
+        showNotification({
+          variant: "success",
+          description: randomMessage,
+          title: "Entrada salva! ✨",
+          autoCloseDelay: 4000
+        });
       }, 1500);
+    } else if (state.success === false && state.message && !pending) {
+      showNotification({
+        variant: "error",
+        description: state.message,
+        title: "Erro ao salvar",
+      });
     }
-  }, [state.success, pending]);
+  }, [state.success, state.message, pending, showNotification]);
 
   const handleSubmit = (formData: FormData) => {
     formAction(formData);
@@ -100,77 +106,6 @@ export default function DiaryInterface({
         show={showWellnessAnimation} 
         onComplete={() => setShowWellnessAnimation(false)}
       />
-      {/* Enhanced Success Animation */}
-      <AnimatePresence>
-        {showSuccess && (
-          <motion.div
-            initial={{ opacity: 0, y: -100, scale: 0.5 }}
-            animate={{ 
-              opacity: 1, 
-              y: 0, 
-              scale: [0.5, 1.1, 1],
-            }}
-            exit={{ opacity: 0, y: -50, scale: 0.8 }}
-            transition={{ 
-              duration: 0.8,
-              scale: { times: [0, 0.5, 1], duration: 0.8 }
-            }}
-            className="fixed top-8 left-1/2 transform -translate-x-1/2 z-50"
-          >
-            <motion.div
-              animate={{ 
-                boxShadow: [
-                  "0 0 20px rgba(34, 197, 94, 0.3)",
-                  "0 0 40px rgba(34, 197, 94, 0.6)",
-                  "0 0 20px rgba(34, 197, 94, 0.3)"
-                ]
-              }}
-              transition={{ duration: 2, repeat: 2 }}
-            >
-              <Card className="bg-gradient-to-r from-green-50 via-emerald-50 to-teal-50 border-green-200 shadow-2xl overflow-hidden relative">
-                <motion.div
-                  initial={{ x: "-100%" }}
-                  animate={{ x: "100%" }}
-                  transition={{ duration: 1.5, delay: 0.5 }}
-                  className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
-                />
-                <CardContent className="p-6 flex items-center gap-4">
-                  <motion.div
-                    animate={{ 
-                      rotate: 360,
-                      scale: [1, 1.2, 1],
-                    }}
-                    transition={{ 
-                      rotate: { duration: 2, repeat: Infinity, ease: "linear" },
-                      scale: { duration: 1, repeat: 2 }
-                    }}
-                  >
-                    <Sparkles className="h-8 w-8 text-green-600" />
-                  </motion.div>
-                  <div className="flex-1">
-                    <motion.span 
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ delay: 0.3 }}
-                      className="text-green-800 font-semibold text-lg block"
-                    >
-                      {successMessage}
-                    </motion.span>
-                  </div>
-                  <motion.div
-                    animate={{ 
-                      scale: [1, 1.3, 1],
-                    }}
-                    transition={{ duration: 0.8, repeat: 3 }}
-                  >
-                    <Heart className="h-6 w-6 text-pink-500" />
-                  </motion.div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {/* Date Navigation */}
       <div className="flex justify-center items-center gap-4">
