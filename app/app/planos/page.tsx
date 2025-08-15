@@ -167,8 +167,8 @@ export default function PlanosPage() {
   if (loading) {
     return (
       <div className="container mx-auto px-4 py-8 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-yellow-400"></div>
-        <span className="ml-2">Carregando...</span>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-400"></div>
+        <span className="ml-2 text-gray-600">Carregando...</span>
       </div>
     )
   }
@@ -201,25 +201,25 @@ export default function PlanosPage() {
       <Script src="https://js.stripe.com/v3/" />
       
       {/* Hero Section */}
-      <div className="bg-gradient-to-b from-gray-900 to-gray-800 py-16">
+      <div className="bg-gradient-to-b from-gray-50 to-white py-12">
         <div className="container mx-auto px-4 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">
             Escolha seu plano
           </h1>
-          <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
+          <p className="text-lg text-gray-600 mb-6 max-w-2xl mx-auto">
             Comece grátis ou desbloqueie todos os recursos com o Premium
           </p>
           
           {/* Current Plan Badge */}
           {currentPlan === 'premium' && isActive && (
-            <div className="inline-flex items-center gap-2 bg-yellow-500/10 text-yellow-400 px-4 py-2 rounded-full mb-8">
+            <div className="inline-flex items-center gap-2 bg-yellow-100 text-yellow-700 px-4 py-2 rounded-full mb-6">
               <Crown className="w-4 h-4" />
               <span>Você está no plano Premium</span>
               <Button 
                 variant="ghost" 
                 size="sm"
                 onClick={() => setIsCancelModalOpen(true)}
-                className="text-yellow-400 hover:text-yellow-300 ml-2"
+                className="text-yellow-700 hover:text-yellow-800 ml-2"
               >
                 Cancelar
               </Button>
@@ -229,18 +229,18 @@ export default function PlanosPage() {
       </div>
 
       {/* Pricing Section */}
-      <div className="bg-gray-900 py-16">
+      <div className="bg-white py-16">
         <div className="container mx-auto px-4">
           
           {/* Billing Period Toggle */}
           <div className="flex justify-center mb-12">
-            <div className="bg-gray-800 p-1 rounded-lg flex">
+            <div className="bg-gray-100 p-1 rounded-lg flex">
               <button
                 onClick={() => setSelectedBillingPeriod('monthly')}
                 className={`px-6 py-2 rounded-md text-sm font-medium transition-all ${
                   selectedBillingPeriod === 'monthly'
-                    ? 'bg-gray-700 text-white shadow-sm'
-                    : 'text-gray-400 hover:text-white'
+                    ? 'bg-white text-gray-900 shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900'
                 }`}
               >
                 Mensal
@@ -249,8 +249,8 @@ export default function PlanosPage() {
                 onClick={() => setSelectedBillingPeriod('semiannual')}
                 className={`px-6 py-2 rounded-md text-sm font-medium transition-all relative ${
                   selectedBillingPeriod === 'semiannual'
-                    ? 'bg-gray-700 text-white shadow-sm'
-                    : 'text-gray-400 hover:text-white'
+                    ? 'bg-white text-gray-900 shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900'
                 }`}
               >
                 Semestral
@@ -264,8 +264,8 @@ export default function PlanosPage() {
                 onClick={() => setSelectedBillingPeriod('annual')}
                 className={`px-6 py-2 rounded-md text-sm font-medium transition-all relative ${
                   selectedBillingPeriod === 'annual'
-                    ? 'bg-gray-700 text-white shadow-sm'
-                    : 'text-gray-400 hover:text-white'
+                    ? 'bg-white text-gray-900 shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900'
                 }`}
               >
                 Anual
@@ -282,31 +282,31 @@ export default function PlanosPage() {
           <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
             
             {/* Free Plan */}
-            <div className="bg-gray-800 rounded-2xl border-2 border-gray-700 p-8">
+            <div className="bg-white rounded-2xl border-2 border-gray-200 p-8 shadow-sm">
               <div className="text-center mb-8">
-                <Users className="w-12 h-12 text-blue-400 mx-auto mb-4" />
-                <h3 className="text-2xl font-bold text-white mb-2">Gratuito</h3>
-                <div className="text-4xl font-bold text-white mb-2">
+                <Users className="w-12 h-12 text-blue-600 mx-auto mb-4" />
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">Gratuito</h3>
+                <div className="text-4xl font-bold text-gray-900 mb-2">
                   R$ 0
-                  <span className="text-lg text-gray-400 font-normal">/mês</span>
+                  <span className="text-lg text-gray-600 font-normal">/mês</span>
                 </div>
-                <p className="text-gray-400">Perfeito para começar</p>
+                <p className="text-gray-600">Perfeito para começar</p>
               </div>
 
               <ul className="space-y-4 mb-8">
                 {freeFeatures.map((feature, index) => (
                   <li key={index} className="flex items-center gap-3">
-                    <div className="w-5 h-5 bg-blue-900/50 rounded-full flex items-center justify-center">
-                      <span className="text-blue-400 text-sm">✓</span>
+                    <div className="w-5 h-5 bg-blue-100 rounded-full flex items-center justify-center">
+                      <span className="text-blue-600 text-sm">✓</span>
                     </div>
-                    <span className="text-gray-300">{feature}</span>
+                    <span className="text-gray-700">{feature}</span>
                   </li>
                 ))}
               </ul>
 
               <Button 
                 variant="outline" 
-                className="w-full h-12 border-gray-600 text-gray-300 hover:text-white hover:border-gray-500"
+                className="w-full h-12 border-gray-300 text-gray-700 hover:text-gray-900 hover:border-gray-400"
                 disabled={currentPlan === 'free'}
               >
                 {currentPlan === 'free' ? 'Seu plano atual' : 'Plano gratuito'}
@@ -314,45 +314,45 @@ export default function PlanosPage() {
             </div>
 
             {/* Premium Plan */}
-            <div className="bg-gradient-to-br from-yellow-900/20 to-yellow-800/20 rounded-2xl border-2 border-yellow-500 p-8 relative">
+            <div className="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-2xl border-2 border-yellow-400 p-8 relative shadow-lg">
               <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                <span className="bg-yellow-500 text-gray-900 px-4 py-1.5 rounded-full text-sm font-medium">
+                <span className="bg-yellow-500 text-white px-4 py-1.5 rounded-full text-sm font-medium">
                   Mais Popular
                 </span>
               </div>
 
               <div className="text-center mb-8">
-                <Crown className="w-12 h-12 text-yellow-400 mx-auto mb-4" />
-                <h3 className="text-2xl font-bold text-white mb-2">Premium</h3>
+                <Crown className="w-12 h-12 text-yellow-600 mx-auto mb-4" />
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">Premium</h3>
                 
                 {selectedPeriodPlan && (
                   <>
-                    <div className="text-4xl font-bold text-white mb-2">
+                    <div className="text-4xl font-bold text-gray-900 mb-2">
                       R$ {Math.floor(selectedPeriodPlan.price_cents / 100)}
-                      <span className="text-lg text-gray-400 font-normal">
+                      <span className="text-lg text-gray-600 font-normal">
                         /{selectedBillingPeriod === 'monthly' ? 'mês' : 
                           selectedBillingPeriod === 'semiannual' ? '6 meses' : 'ano'}
                       </span>
                     </div>
                     
                     {selectedBillingPeriod !== 'monthly' && monthlyPlan && (
-                      <p className="text-gray-400 text-sm">
+                      <p className="text-gray-600 text-sm">
                         Equivale a R$ {Math.floor(selectedPeriodPlan.price_cents / 100 / (selectedBillingPeriod === 'semiannual' ? 6 : 12))}/mês
                       </p>
                     )}
                   </>
                 )}
                 
-                <p className="text-gray-400 mt-2">Para uso profissional</p>
+                <p className="text-gray-600 mt-2">Para uso profissional</p>
               </div>
 
               <ul className="space-y-4 mb-8">
                 {premiumFeatures.map((feature, index) => (
                   <li key={index} className="flex items-center gap-3">
-                    <div className="w-5 h-5 bg-yellow-900/50 rounded-full flex items-center justify-center">
-                      <span className="text-yellow-400 text-sm">✓</span>
+                    <div className="w-5 h-5 bg-yellow-100 rounded-full flex items-center justify-center">
+                      <span className="text-yellow-600 text-sm">✓</span>
                     </div>
-                    <span className="text-gray-300">{feature}</span>
+                    <span className="text-gray-700">{feature}</span>
                   </li>
                 ))}
               </ul>
@@ -399,47 +399,47 @@ export default function PlanosPage() {
       </div>
 
       {/* FAQ Section */}
-      <div className="bg-gray-800 py-16">
+      <div className="bg-gray-50 py-16">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-white mb-12 text-center">
+          <h2 className="text-3xl font-bold text-gray-900 mb-12 text-center">
             Perguntas Frequentes
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            <div className="bg-gray-700 p-6 rounded-lg border border-gray-600">
-              <h3 className="text-lg font-semibold text-white mb-3">
+            <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
+              <h3 className="text-lg font-semibold text-gray-900 mb-3">
                 Posso cancelar a qualquer momento?
               </h3>
-              <p className="text-gray-300">
+              <p className="text-gray-600">
                 Sim! Você pode cancelar sua assinatura Premium a qualquer momento. 
                 Você continuará tendo acesso aos recursos Premium até o final do período pago.
               </p>
             </div>
 
-            <div className="bg-gray-700 p-6 rounded-lg border border-gray-600">
-              <h3 className="text-lg font-semibold text-white mb-3">
+            <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
+              <h3 className="text-lg font-semibold text-gray-900 mb-3">
                 O que acontece com meus grupos no plano gratuito?
               </h3>
-              <p className="text-gray-300">
+              <p className="text-gray-600">
                 Se você fizer downgrade para o plano gratuito, seus grupos existentes 
                 permanecerão ativos, mas você só poderá criar novos grupos dentro do limite gratuito.
               </p>
             </div>
 
-            <div className="bg-gray-700 p-6 rounded-lg border border-gray-600">
-              <h3 className="text-lg font-semibold text-white mb-3">
+            <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
+              <h3 className="text-lg font-semibold text-gray-900 mb-3">
                 Como funciona o pagamento?
               </h3>
-              <p className="text-gray-300">
+              <p className="text-gray-600">
                 O pagamento é processado de forma segura através do Stripe. 
                 Os planos semestral e anual são cobrados uma única vez no período.
               </p>
             </div>
 
-            <div className="bg-gray-700 p-6 rounded-lg border border-gray-600">
-              <h3 className="text-lg font-semibold text-white mb-3">
+            <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
+              <h3 className="text-lg font-semibold text-gray-900 mb-3">
                 Preciso de ajuda?
               </h3>
-              <p className="text-gray-300">
+              <p className="text-gray-600">
                 Entre em contato conosco através do email suporte@amigsosecreto.com 
                 ou pelo chat no site. Usuários Premium têm suporte prioritário!
               </p>
