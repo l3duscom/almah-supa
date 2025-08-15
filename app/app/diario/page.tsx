@@ -13,15 +13,19 @@ export default async function DiaryPage({
   const { date } = await searchParams;
   const supabase = await createClient();
 
-  // Use today's date if no date specified - usando UTC + offset local
+  // Force today's date if no date specified 
   const dateString = date || getTodayDateString();
+  
+  // FORCE: Se não há parâmetro, garante que é hoje
+  const finalDateString = !date ? getTodayDateString() : dateString;
   
   // Debug com nova lógica
   console.log("🗓️ Debug DiaryPage:", {
     dateParam: date,
     dateString,
+    finalDateString,
     today: getTodayDateString(),
-    isToday: dateString === getTodayDateString(),
+    isToday: finalDateString === getTodayDateString(),
     timezoneOffset: new Date().getTimezoneOffset()
   });
 
@@ -30,7 +34,7 @@ export default async function DiaryPage({
     .from("diary_entries")
     .select("*")
     .eq("user_id", user.id)
-    .eq("date", dateString)
+    .eq("date", finalDateString)
     .order("created_at", { ascending: true });
 
   if (error) {
@@ -47,11 +51,11 @@ export default async function DiaryPage({
         </p>
       </div>
 
-      <DiaryNavigation currentDate={dateString} />
+      <DiaryNavigation currentDate={finalDateString} />
 
       <DiaryInterface
         entries={entries || []}
-        currentDate={dateString}
+        currentDate={finalDateString}
       />
     </div>
   );

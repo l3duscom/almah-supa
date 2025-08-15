@@ -21,6 +21,16 @@ export default function DiaryNavigation({ currentDate }: DiaryNavigationProps) {
   const todayObj = parseLocalDateString(today);
   const isFuture = currentDateObj > todayObj;
 
+  // Debug para navegação
+  console.log("🧭 Debug DiaryNavigation:", {
+    currentDate,
+    today,
+    isToday,
+    yesterday,
+    tomorrow,
+    comparison: currentDate === today
+  });
+
   return (
     <div className="flex items-center justify-center gap-4 mb-6">
       <Button asChild variant="outline" size="sm">
