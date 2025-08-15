@@ -81,7 +81,7 @@ export default function UserAudioLibrary() {
   const [userPlan, setUserPlan] = useState<'free' | 'premium'>('free');
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   
-  const { playTrack, currentTrack, isPlaying } = useAudioPlayer();
+  const { playTrack, currentTrack, isPlaying, togglePlay } = useAudioPlayer();
 
   useEffect(() => {
     loadAudioData();
@@ -152,6 +152,14 @@ export default function UserAudioLibrary() {
       return;
     }
 
+    // Check if this is the current track
+    if (currentTrack?.id === audioFile.id) {
+      // Same track - just toggle play/pause
+      togglePlay();
+      return;
+    }
+
+    // Different track - load and play new track
     const audioUrl = getAudioUrl(audioFile);
     if (!audioUrl) {
       console.error("No URL available for audio file");
