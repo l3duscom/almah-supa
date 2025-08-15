@@ -70,14 +70,41 @@ export default function AudioPlayerBar() {
     };
   }, [currentTrack, handleNext]);
 
+  // Load new track when currentTrack changes
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio || !currentTrack) return;
+
+    // Reset audio state
+    setCurrentTime(0);
+    setDuration(0);
+    
+    // Load new source
+    if (audio.src !== currentTrack.url) {
+      audio.src = currentTrack.url;
+      audio.load();
+    }
+  }, [currentTrack]);
+
+  // Auto-play when isPlaying state changes to true
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio || !currentTrack) return;
+
+    if (isPlaying && audio.paused) {
+      audio.play().catch(error => {
+        console.error("Autoplay prevented:", error);
+        // If autoplay is blocked, the user will need to manually click play
+      });
+    } else if (!isPlaying && !audio.paused) {
+      audio.pause();
+    }
+  }, [isPlaying, currentTrack]);
+
   const handlePlayPause = () => {
     if (!audioRef.current || !currentTrack) return;
     
-    if (isPlaying) {
-      audioRef.current.pause();
-    } else {
-      audioRef.current.play();
-    }
+    // Just toggle the state, useEffect will handle play/pause
     togglePlay();
   };
 
@@ -117,7 +144,6 @@ export default function AudioPlayerBar() {
         {/* Audio element */}
         <audio
           ref={audioRef}
-          src={currentTrack?.url}
           preload="metadata"
         />
         
