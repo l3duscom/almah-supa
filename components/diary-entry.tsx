@@ -123,7 +123,7 @@ export default function DiaryEntry({ entry, canEdit }: DiaryEntryProps) {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
     >
-      <Card className="relative group">
+      <Card className="relative group bg-white/70 backdrop-blur-sm border-white/30">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">

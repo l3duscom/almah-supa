@@ -201,7 +201,7 @@ export default function PlanosPage() {
       <Script src="https://js.stripe.com/v3/" />
       
       {/* Hero Section */}
-      <div className="bg-gradient-to-b from-gray-50 to-white py-12">
+      <div className="bg-white/60 backdrop-blur-sm py-12">
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">
             Escolha seu plano
@@ -229,7 +229,7 @@ export default function PlanosPage() {
       </div>
 
       {/* Pricing Section */}
-      <div className="bg-white py-16">
+      <div className="bg-white/40 backdrop-blur-sm py-16">
         <div className="container mx-auto px-4">
           
           {/* Billing Period Toggle */}
@@ -282,7 +282,7 @@ export default function PlanosPage() {
           <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
             
             {/* Free Plan */}
-            <div className="bg-white rounded-2xl border-2 border-gray-200 p-8 shadow-sm">
+            <div className="bg-white/80 backdrop-blur-sm rounded-2xl border-2 border-white/40 p-8 shadow-lg">
               <div className="text-center mb-8">
                 <Users className="w-12 h-12 text-blue-600 mx-auto mb-4" />
                 <h3 className="text-2xl font-bold text-gray-900 mb-2">Gratuito</h3>
@@ -314,7 +314,7 @@ export default function PlanosPage() {
             </div>
 
             {/* Premium Plan */}
-            <div className="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-2xl border-2 border-yellow-400 p-8 relative shadow-lg">
+            <div className="bg-gradient-to-br from-yellow-100/80 to-orange-100/80 backdrop-blur-sm rounded-2xl border-2 border-yellow-400/60 p-8 relative shadow-lg">
               <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
                 <span className="bg-yellow-500 text-white px-4 py-1.5 rounded-full text-sm font-medium">
                   Mais Popular
@@ -399,13 +399,13 @@ export default function PlanosPage() {
       </div>
 
       {/* FAQ Section */}
-      <div className="bg-gray-50 py-16">
+      <div className="bg-white/30 backdrop-blur-sm py-16">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-gray-900 mb-12 text-center">
             Perguntas Frequentes
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
+            <div className="bg-white/80 backdrop-blur-sm p-6 rounded-lg border border-white/40 shadow-lg">
               <h3 className="text-lg font-semibold text-gray-900 mb-3">
                 Posso cancelar a qualquer momento?
               </h3>
@@ -415,7 +415,7 @@ export default function PlanosPage() {
               </p>
             </div>
 
-            <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
+            <div className="bg-white/80 backdrop-blur-sm p-6 rounded-lg border border-white/40 shadow-lg">
               <h3 className="text-lg font-semibold text-gray-900 mb-3">
                 O que acontece com meus grupos no plano gratuito?
               </h3>
@@ -425,7 +425,7 @@ export default function PlanosPage() {
               </p>
             </div>
 
-            <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
+            <div className="bg-white/80 backdrop-blur-sm p-6 rounded-lg border border-white/40 shadow-lg">
               <h3 className="text-lg font-semibold text-gray-900 mb-3">
                 Como funciona o pagamento?
               </h3>
@@ -435,7 +435,7 @@ export default function PlanosPage() {
               </p>
             </div>
 
-            <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
+            <div className="bg-white/80 backdrop-blur-sm p-6 rounded-lg border border-white/40 shadow-lg">
               <h3 className="text-lg font-semibold text-gray-900 mb-3">
                 Preciso de ajuda?
               </h3>

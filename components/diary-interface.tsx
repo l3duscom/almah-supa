@@ -109,7 +109,7 @@ export default function DiaryInterface({
 
       {/* Date Navigation */}
       <div className="flex justify-center items-center gap-4">
-        <Card className="w-fit">
+        <Card className="w-fit bg-white/70 backdrop-blur-sm border-white/30">
           <CardContent className="p-4 flex items-center gap-2">
             <Calendar className="h-4 w-4 text-muted-foreground" />
             <span className="text-sm font-medium">
@@ -133,7 +133,7 @@ export default function DiaryInterface({
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <Card className="border-dashed border-2 border-muted-foreground/25 hover:border-primary/50 transition-colors">
+          <Card className="border-dashed border-2 border-muted-foreground/25 hover:border-primary/50 transition-colors bg-white/60 backdrop-blur-sm">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Edit3 className="h-5 w-5" />
@@ -239,7 +239,7 @@ export default function DiaryInterface({
         </AnimatePresence>
 
         {entries.length === 0 && !isToday && (
-          <Card className="text-center p-8">
+          <Card className="text-center p-8 bg-white/60 backdrop-blur-sm border-white/30">
             <CardContent className="space-y-4">
               <p className="text-muted-foreground">
                 Você não escreveu nada neste dia.

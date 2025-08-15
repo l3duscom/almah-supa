@@ -13,7 +13,7 @@ export default async function Header() {
   );
   
   return (
-    <header className="border-b">
+    <header className="border-b border-white/20 bg-white/80 backdrop-blur-sm">
       <div className="container mx-auto px-4 py-3">
         <div className="flex justify-between items-center">
           <Link href="/" className="text-xl md:text-2xl font-bold flex items-center gap-2 flex-1">
