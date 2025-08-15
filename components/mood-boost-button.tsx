@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Heart, Play } from "lucide-react";
+import { Heart } from "lucide-react";
 import { useNotification } from "@/hooks/use-notification";
 import { useAudioPlayer } from "@/hooks/use-audio-player";
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX } from "lucide-react";
@@ -30,6 +30,28 @@ export default function AudioPlayerBar() {
   }, [playlist, currentTrack, setCurrentTrack]);
 
   useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.volume = isMuted ? 0 : volume / 100;
+    }
+  }, [volume, isMuted]);
+
+  const handleNext = useCallback(() => {
+    if (!currentTrack || playlist.length === 0) return;
+    
+    const currentIndex = playlist.findIndex(track => track.id === currentTrack.id);
+    const nextIndex = (currentIndex + 1) % playlist.length;
+    setCurrentTrack(playlist[nextIndex]);
+  }, [currentTrack, playlist, setCurrentTrack]);
+
+  const handlePrevious = useCallback(() => {
+    if (!currentTrack || playlist.length === 0) return;
+    
+    const currentIndex = playlist.findIndex(track => track.id === currentTrack.id);
+    const prevIndex = currentIndex === 0 ? playlist.length - 1 : currentIndex - 1;
+    setCurrentTrack(playlist[prevIndex]);
+  }, [currentTrack, playlist, setCurrentTrack]);
+
+  useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
 
@@ -46,13 +68,7 @@ export default function AudioPlayerBar() {
       audio.removeEventListener('durationchange', handleDurationChange);
       audio.removeEventListener('ended', handleEnded);
     };
-  }, [currentTrack]);
-
-  useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.volume = isMuted ? 0 : volume / 100;
-    }
-  }, [volume, isMuted]);
+  }, [currentTrack, handleNext]);
 
   const handlePlayPause = () => {
     if (!audioRef.current || !currentTrack) return;
@@ -63,22 +79,6 @@ export default function AudioPlayerBar() {
       audioRef.current.play();
     }
     togglePlay();
-  };
-
-  const handleNext = () => {
-    if (!currentTrack || playlist.length === 0) return;
-    
-    const currentIndex = playlist.findIndex(track => track.id === currentTrack.id);
-    const nextIndex = (currentIndex + 1) % playlist.length;
-    setCurrentTrack(playlist[nextIndex]);
-  };
-
-  const handlePrevious = () => {
-    if (!currentTrack || playlist.length === 0) return;
-    
-    const currentIndex = playlist.findIndex(track => track.id === currentTrack.id);
-    const prevIndex = currentIndex === 0 ? playlist.length - 1 : currentIndex - 1;
-    setCurrentTrack(playlist[prevIndex]);
   };
 
   const handleSeek = (value: number[]) => {
