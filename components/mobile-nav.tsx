@@ -87,13 +87,14 @@ export default function MobileNav({ user, isSuperAdmin, isPremium }: MobileNavPr
 
               {/* Navigation Links */}
               <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
+                {/* Botão principal - Meu Diário */}
                 <Link
                   href="/app/diario"
                   onClick={closeMenu}
-                  className="flex items-center gap-3 p-3 rounded-xl hover:bg-white/10 transition-all duration-200 text-white/90 hover:text-white hover:scale-105"
+                  className="flex items-center gap-3 p-4 rounded-xl bg-gradient-to-r from-violet-400 to-purple-500 hover:from-violet-500 hover:to-purple-600 transition-all duration-300 text-white hover:scale-105 shadow-lg shadow-violet-900/30 mb-3"
                 >
                   <BookOpen className="w-5 h-5 flex-shrink-0" />
-                  <span className="font-medium">Diário</span>
+                  <span className="font-semibold">Meu Diário</span>
                 </Link>
 
                 <Link
@@ -108,7 +109,7 @@ export default function MobileNav({ user, isSuperAdmin, isPremium }: MobileNavPr
                 <Link
                   href="/app/grupos/novo"
                   onClick={closeMenu}
-                  className="flex items-center gap-3 p-3 rounded-xl hover:bg-white/10 transition-all duration-200 text-white/90 hover:text-white hover:scale-105 border border-white/20"
+                  className="flex items-center gap-3 p-3 rounded-xl hover:bg-white/10 transition-all duration-200 text-white/90 hover:text-white hover:scale-105"
                 >
                   <Plus className="w-5 h-5 flex-shrink-0" />
                   <span className="font-medium">Novo Grupo</span>

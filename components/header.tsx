@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Heart, UsersRound, Terminal, LogOut, Crown, CreditCard, BookOpen } from "lucide-react";
+import { Heart, UsersRound, Terminal, LogOut, Crown, CreditCard, BookOpen, Plus } from "lucide-react";
 import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth";
 import { signOut } from "@/app/logout/actions";
@@ -27,19 +27,19 @@ export default async function Header() {
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center space-x-6">
             <Link
-              href="/app/diario"
-              className="text-white/90 hover:text-white text-sm font-medium flex gap-2 items-center transition-all duration-200 hover:scale-105"
-            >
-              <BookOpen className="w-4 h-4" />
-              Diário
-            </Link>
-
-            <Link
               href="/app/grupos"
               className="text-white/90 hover:text-white text-sm font-medium flex gap-2 items-center transition-all duration-200 hover:scale-105"
             >
               <UsersRound className="w-4 h-4" />
               Meus grupos
+            </Link>
+
+            <Link
+              href="/app/grupos/novo"
+              className="text-white/90 hover:text-white text-sm font-medium flex gap-2 items-center transition-all duration-200 hover:scale-105"
+            >
+              <Plus className="w-4 h-4" />
+              Novo grupo
             </Link>
 
             <Link
@@ -71,11 +71,12 @@ export default async function Header() {
             <div className="flex items-center gap-3 ml-4 pl-4 border-l border-white/20">
               <Button 
                 asChild 
-                variant="outline" 
-                size="sm"
-                className="border-white/30 text-white hover:bg-white/10 hover:border-white/50 transition-all duration-200 hover:scale-105"
+                className="bg-gradient-to-r from-violet-400 to-purple-500 hover:from-violet-500 hover:to-purple-600 text-white border-0 shadow-lg shadow-violet-900/30 hover:shadow-violet-900/50 transition-all duration-300 hover:scale-105 rounded-full px-6 py-2 font-medium"
               >
-                <Link href="/app/grupos/novo">Novo grupo</Link>
+                <Link href="/app/diario" className="flex items-center gap-2">
+                  <BookOpen className="w-4 h-4" />
+                  Meu Diário
+                </Link>
               </Button>
 
               <form action={signOut}>
@@ -83,7 +84,7 @@ export default async function Header() {
                   variant="ghost" 
                   type="submit" 
                   size="sm" 
-                  className="text-white/90 hover:text-red-300 hover:bg-red-500/10 transition-all duration-200 hover:scale-105"
+                  className="text-white/90 hover:text-red-300 hover:bg-red-500/10 transition-all duration-200 hover:scale-105 rounded-full"
                 >
                   <LogOut className="w-4 h-4" />
                 </Button>
