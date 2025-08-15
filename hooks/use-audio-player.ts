@@ -30,7 +30,7 @@ export const useAudioPlayer = create<AudioPlayerStore>((set, get) => ({
   playlist: [],
   currentTrack: null,
   isPlaying: false,
-  isVisible: false,
+  isVisible: true,
 
   setPlaylist: (tracks) => set({ playlist: tracks }),
   

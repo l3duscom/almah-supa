@@ -103,7 +103,7 @@ export default function AudioPlayerBar() {
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   };
 
-  if (!isVisible || !currentTrack) return null;
+  if (!isVisible) return null;
 
   return (
     <AnimatePresence>
@@ -131,19 +131,32 @@ export default function AudioPlayerBar() {
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 bg-violet-600/50 rounded-lg flex items-center justify-center">
                     <motion.div
-                      animate={{ rotate: isPlaying ? 360 : 0 }}
-                      transition={{ duration: 3, repeat: isPlaying ? Infinity : 0, ease: "linear" }}
+                      animate={{ rotate: isPlaying && currentTrack ? 360 : 0 }}
+                      transition={{ duration: 3, repeat: isPlaying && currentTrack ? Infinity : 0, ease: "linear" }}
                       className="w-8 h-8 bg-gradient-to-br from-violet-300 to-violet-600 rounded-full"
                     />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <h4 className="text-white font-medium text-sm truncate">
-                      {currentTrack.title}
-                    </h4>
-                    {currentTrack.artist && (
-                      <p className="text-violet-200 text-xs truncate">
-                        {currentTrack.artist}
-                      </p>
+                    {currentTrack ? (
+                      <>
+                        <h4 className="text-white font-medium text-sm truncate">
+                          {currentTrack.title}
+                        </h4>
+                        {currentTrack.artist && (
+                          <p className="text-violet-200 text-xs truncate">
+                            {currentTrack.artist}
+                          </p>
+                        )}
+                      </>
+                    ) : (
+                      <>
+                        <h4 className="text-white font-medium text-sm">
+                          Selecione uma música
+                        </h4>
+                        <p className="text-violet-200 text-xs">
+                          Escolha um áudio para começar
+                        </p>
+                      </>
                     )}
                   </div>
                 </div>
@@ -157,7 +170,7 @@ export default function AudioPlayerBar() {
                     variant="ghost"
                     onClick={handlePrevious}
                     className="text-white hover:text-violet-200 hover:bg-violet-600/50 h-8 w-8 p-0"
-                    disabled={playlist.length <= 1}
+                    disabled={!currentTrack || playlist.length <= 1}
                   >
                     <SkipBack className="h-4 w-4" />
                   </Button>
@@ -165,7 +178,8 @@ export default function AudioPlayerBar() {
                   <Button
                     size="sm"
                     onClick={handlePlayPause}
-                    className="bg-white text-violet-600 hover:bg-violet-50 h-10 w-10 p-0 rounded-full shadow-lg"
+                    className="bg-white text-violet-600 hover:bg-violet-50 h-10 w-10 p-0 rounded-full shadow-lg disabled:opacity-50"
+                    disabled={!currentTrack}
                   >
                     {isPlaying ? (
                       <Pause className="h-5 w-5" />
@@ -179,7 +193,7 @@ export default function AudioPlayerBar() {
                     variant="ghost"
                     onClick={handleNext}
                     className="text-white hover:text-violet-200 hover:bg-violet-600/50 h-8 w-8 p-0"
-                    disabled={playlist.length <= 1}
+                    disabled={!currentTrack || playlist.length <= 1}
                   >
                     <SkipForward className="h-4 w-4" />
                   </Button>
