@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { createAudioFile, AudioFileActionState } from "@/app/app/console/audio/files/actions";
 import { Loader2, Upload, Music, Info } from "lucide-react";
@@ -244,11 +244,11 @@ export default function AudioFileForm({ categories, moods }: AudioFileFormProps)
       </div>
 
       <div className="flex items-center space-x-2">
-        <Switch
+        <Checkbox
           id="is_premium"
           name="is_premium"
           checked={formData.is_premium}
-          onCheckedChange={(checked) => handleInputChange("is_premium", checked)}
+          onCheckedChange={(checked) => handleInputChange("is_premium", checked as boolean)}
           disabled={pending}
         />
         <Label htmlFor="is_premium" className="text-sm">
