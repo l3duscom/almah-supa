@@ -8,8 +8,10 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { createAudioFile, AudioFileActionState } from "@/app/app/console/audio/files/actions";
-import { Loader2, Upload, Info } from "lucide-react";
+import AudioFileUpload from "@/components/audio-file-upload";
+import { Loader2, Upload, Info, Link, FileUp } from "lucide-react";
 
 interface Category {
   id: string;
@@ -29,11 +31,13 @@ interface AudioFileFormProps {
 }
 
 export default function AudioFileForm({ categories, moods }: AudioFileFormProps) {
+  const [uploadMethod, setUploadMethod] = useState<"upload" | "url">("upload");
   const [formData, setFormData] = useState({
     title: "",
     artist: "",
     description: "",
     file_url: "",
+    storage_path: "",
     duration_seconds: "",
     file_size_bytes: "",
     file_format: "",
@@ -56,6 +60,7 @@ export default function AudioFileForm({ categories, moods }: AudioFileFormProps)
         artist: "",
         description: "",
         file_url: "",
+        storage_path: "",
         duration_seconds: "",
         file_size_bytes: "",
         file_format: "",
@@ -79,8 +84,26 @@ export default function AudioFileForm({ categories, moods }: AudioFileFormProps)
   };
 
   const handleUrlChange = (url: string) => {
-    setFormData(prev => ({ ...prev, file_url: url }));
+    setFormData(prev => ({ ...prev, file_url: url, storage_path: "" }));
     detectFileFormat(url);
+  };
+
+  const handleFileUploaded = (fileData: {
+    storage_path: string;
+    duration_seconds: number | null;
+    file_size_bytes: number;
+    file_format: string;
+    original_name: string;
+  }) => {
+    setFormData(prev => ({
+      ...prev,
+      storage_path: fileData.storage_path,
+      duration_seconds: fileData.duration_seconds?.toString() || "",
+      file_size_bytes: fileData.file_size_bytes.toString(),
+      file_format: fileData.file_format,
+      file_url: "", // Clear URL when using upload
+      title: prev.title || fileData.original_name.replace(/\.[^/.]+$/, '') // Set title if empty
+    }));
   };
 
   return (
@@ -111,21 +134,45 @@ export default function AudioFileForm({ categories, moods }: AudioFileFormProps)
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="file_url">URL do Arquivo *</Label>
-        <Input
-          id="file_url"
-          name="file_url"
-          type="url"
-          value={formData.file_url}
-          onChange={(e) => handleUrlChange(e.target.value)}
-          placeholder="https://exemplo.com/audio.mp3"
-          disabled={pending}
-          required
-        />
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <Info className="h-3 w-3" />
-          Suporte para: MP3, WAV, OGG, M4A, FLAC
-        </div>
+        <Label>Arquivo de Áudio *</Label>
+        <Tabs value={uploadMethod} onValueChange={(value) => setUploadMethod(value as "upload" | "url")} className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="upload" className="flex items-center gap-2">
+              <FileUp className="h-4 w-4" />
+              Upload
+            </TabsTrigger>
+            <TabsTrigger value="url" className="flex items-center gap-2">
+              <Link className="h-4 w-4" />
+              URL
+            </TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="upload" className="space-y-2">
+            <AudioFileUpload 
+              onFileUploaded={handleFileUploaded}
+              disabled={pending}
+            />
+            {formData.storage_path && (
+              <input type="hidden" name="storage_path" value={formData.storage_path} />
+            )}
+          </TabsContent>
+          
+          <TabsContent value="url" className="space-y-2">
+            <Input
+              id="file_url"
+              name="file_url"
+              type="url"
+              value={formData.file_url}
+              onChange={(e) => handleUrlChange(e.target.value)}
+              placeholder="https://exemplo.com/audio.mp3"
+              disabled={pending}
+            />
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <Info className="h-3 w-3" />
+              Suporte para: MP3, WAV, OGG, M4A, FLAC
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
@@ -256,20 +303,26 @@ export default function AudioFileForm({ categories, moods }: AudioFileFormProps)
         </Label>
       </div>
 
-      {/* Preview URL */}
-      {formData.file_url && (
-        <div className="p-3 border rounded-lg bg-gray-50">
-          <Label className="text-sm font-medium text-gray-700">Preview:</Label>
+      {/* Preview */}
+      {(formData.file_url || formData.storage_path) && (
+        <div className="p-3 border rounded-lg bg-gray-50 dark:bg-gray-800">
+          <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Preview:</Label>
           <div className="mt-2">
-            <audio 
-              controls 
-              className="w-full" 
-              preload="metadata"
-              onError={(e) => console.log("Audio load error:", e)}
-            >
-              <source src={formData.file_url} type={`audio/${formData.file_format || 'mp3'}`} />
-              Seu navegador não suporta o elemento de áudio.
-            </audio>
+            {formData.file_url ? (
+              <audio 
+                controls 
+                className="w-full" 
+                preload="metadata"
+                onError={(e) => console.log("Audio load error:", e)}
+              >
+                <source src={formData.file_url} type={`audio/${formData.file_format || 'mp3'}`} />
+                Seu navegador não suporta o elemento de áudio.
+              </audio>
+            ) : (
+              <div className="text-sm text-muted-foreground">
+                Arquivo carregado: {formData.storage_path}
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -288,7 +341,7 @@ export default function AudioFileForm({ categories, moods }: AudioFileFormProps)
 
       <Button 
         type="submit" 
-        disabled={pending || !formData.title.trim() || !formData.file_url.trim()}
+        disabled={pending || !formData.title.trim() || (!formData.file_url.trim() && !formData.storage_path.trim())}
         className="w-full"
       >
         {pending ? (

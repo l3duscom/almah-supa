@@ -5,7 +5,8 @@ export interface AudioFile {
   title: string;
   artist: string | null;
   description: string | null;
-  file_url: string;
+  file_url: string | null;
+  storage_path: string | null;
   duration_seconds: number | null;
   file_size_bytes: number | null;
   file_format: string | null;
@@ -47,6 +48,22 @@ export interface AudioMood {
   mood_level: number;
   color: string | null;
   is_active: boolean;
+}
+
+/**
+ * Get the playback URL for an audio file (handles both file_url and storage_path)
+ */
+export function getAudioUrl(audioFile: AudioFile): string | null {
+  if (audioFile.file_url) {
+    return audioFile.file_url;
+  }
+  
+  if (audioFile.storage_path) {
+    // Return the storage path directly - the client will need to get the signed URL
+    return `/api/audio/stream/${encodeURIComponent(audioFile.storage_path)}`;
+  }
+  
+  return null;
 }
 
 /**

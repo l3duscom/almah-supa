@@ -22,6 +22,7 @@ export async function createAudioFile(
     const artist = formData.get("artist") as string;
     const description = formData.get("description") as string;
     const fileUrl = formData.get("file_url") as string;
+    const storagePath = formData.get("storage_path") as string;
     const durationSeconds = parseInt(formData.get("duration_seconds") as string) || null;
     const fileSizeBytes = parseInt(formData.get("file_size_bytes") as string) || null;
     const fileFormat = formData.get("file_format") as string;
@@ -37,10 +38,10 @@ export async function createAudioFile(
       };
     }
 
-    if (!fileUrl.trim()) {
+    if (!fileUrl.trim() && !storagePath.trim()) {
       return {
         success: false,
-        message: "URL do arquivo é obrigatória.",
+        message: "URL do arquivo ou upload é obrigatório.",
       };
     }
 
@@ -55,7 +56,8 @@ export async function createAudioFile(
         title: title.trim(),
         artist: artist.trim() || null,
         description: description.trim() || null,
-        file_url: fileUrl.trim(),
+        file_url: fileUrl.trim() || null,
+        storage_path: storagePath.trim() || null,
         duration_seconds: durationSeconds,
         file_size_bytes: fileSizeBytes,
         file_format: fileFormat.trim() || null,
@@ -105,6 +107,7 @@ export async function updateAudioFile(
     const artist = formData.get("artist") as string;
     const description = formData.get("description") as string;
     const fileUrl = formData.get("file_url") as string;
+    const storagePath = formData.get("storage_path") as string;
     const durationSeconds = parseInt(formData.get("duration_seconds") as string) || null;
     const fileSizeBytes = parseInt(formData.get("file_size_bytes") as string) || null;
     const fileFormat = formData.get("file_format") as string;
@@ -121,10 +124,10 @@ export async function updateAudioFile(
       };
     }
 
-    if (!fileUrl.trim()) {
+    if (!fileUrl.trim() && !storagePath.trim()) {
       return {
         success: false,
-        message: "URL do arquivo é obrigatória.",
+        message: "URL do arquivo ou upload é obrigatório.",
       };
     }
 
@@ -139,7 +142,8 @@ export async function updateAudioFile(
         title: title.trim(),
         artist: artist.trim() || null,
         description: description.trim() || null,
-        file_url: fileUrl.trim(),
+        file_url: fileUrl.trim() || null,
+        storage_path: storagePath.trim() || null,
         duration_seconds: durationSeconds,
         file_size_bytes: fileSizeBytes,
         file_format: fileFormat.trim() || null,
@@ -179,6 +183,34 @@ export async function deleteAudioFile(audioId: string): Promise<AudioFileActionS
     await requireSuperAdmin();
     const supabase = await createClient();
 
+    // First, get the audio file to check if it has a storage_path
+    const { data: audioFile, error: fetchError } = await supabase
+      .from("audio_files")
+      .select("storage_path")
+      .eq("id", audioId)
+      .single();
+
+    if (fetchError) {
+      console.error("Error fetching audio file:", fetchError);
+      return {
+        success: false,
+        message: "Erro ao buscar arquivo de áudio.",
+      };
+    }
+
+    // Delete from storage if it's a stored file
+    if (audioFile?.storage_path) {
+      const { error: storageError } = await supabase.storage
+        .from('audio-files')
+        .remove([audioFile.storage_path]);
+
+      if (storageError) {
+        console.error("Error deleting file from storage:", storageError);
+        // Continue with database deletion even if storage deletion fails
+      }
+    }
+
+    // Delete from database
     const { error } = await supabase
       .from("audio_files")
       .delete()

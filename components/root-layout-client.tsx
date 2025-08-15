@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useAudioPlayer } from "@/hooks/use-audio-player";
 import AudioPlayerBar from "@/components/audio-player-bar";
 import { createClient } from "@/utils/supabase/client";
+import { getAudioUrl, type AudioFile } from "@/lib/audio";
 
 export default function RootLayoutClient() {
   const { setPlaylist } = useAudioPlayer();
@@ -49,6 +50,7 @@ export default function RootLayoutClient() {
             title,
             artist,
             file_url,
+            storage_path,
             audio_categories!inner (
               name,
               is_active
@@ -85,12 +87,22 @@ export default function RootLayoutClient() {
           ]);
         } else if (audioFiles && audioFiles.length > 0) {
           // Convert database format to player format
-          const playlist = audioFiles.map(file => ({
-            id: file.id,
-            title: file.title,
-            artist: file.artist || "Almah Wellness",
-            url: file.file_url
-          }));
+          const playlist = audioFiles
+            .map(file => {
+              const audioUrl = getAudioUrl(file as AudioFile);
+              if (!audioUrl) {
+                console.warn(`No URL available for audio file: ${file.title}`);
+                return null;
+              }
+              
+              return {
+                id: file.id,
+                title: file.title,
+                artist: file.artist || "Almah Wellness",
+                url: audioUrl
+              };
+            })
+            .filter(Boolean); // Remove null entries
           
           setPlaylist(playlist);
         } else {
