@@ -27,19 +27,19 @@ export default async function Header() {
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-4">
             <Link
-              href="/app/grupos"
-              className="text-foreground text-sm flex gap-2 items-center"
-            >
-              <UsersRound className="w-4 h-4" />
-              Meu grupos
-            </Link>
-
-            <Link
               href="/app/diario"
               className="text-foreground text-sm flex gap-2 items-center"
             >
               <BookOpen className="w-4 h-4" />
               Diário
+            </Link>
+
+            <Link
+              href="/app/grupos"
+              className="text-foreground text-sm flex gap-2 items-center"
+            >
+              <UsersRound className="w-4 h-4" />
+              Meu grupos
             </Link>
 
 

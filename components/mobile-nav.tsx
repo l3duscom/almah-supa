@@ -88,21 +88,21 @@ export default function MobileNav({ user, isSuperAdmin, isPremium }: MobileNavPr
               {/* Navigation Links */}
               <nav className="flex-1 p-4 space-y-2">
                 <Link
-                  href="/app/grupos"
-                  onClick={closeMenu}
-                  className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                >
-                  <UsersRound className="w-5 h-5 text-gray-600" />
-                  <span>Meus Grupos</span>
-                </Link>
-
-                <Link
                   href="/app/diario"
                   onClick={closeMenu}
                   className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                 >
                   <BookOpen className="w-5 h-5 text-gray-600" />
                   <span>Diário</span>
+                </Link>
+
+                <Link
+                  href="/app/grupos"
+                  onClick={closeMenu}
+                  className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                >
+                  <UsersRound className="w-5 h-5 text-gray-600" />
+                  <span>Meus Grupos</span>
                 </Link>
 
                 <Link
